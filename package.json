@@ -1,0 +1,46 @@
+{
+  "name": "clippy",
+  "version": "1.0.0-alpha",
+  "description": "A clipboard manager built on electron",
+  "license": "MIT",
+  "repository": "ramlmn/electron-clippy",
+  "author": {
+    "name": "Ram Lmn",
+    "email": "ramlmn@outlook.com",
+    "url": "https://ramlmn.github.io/"
+  },
+  "homepage": "https://github.com/ramlmn/electron-clippy",
+  "main": "./src/main/main.js",
+  "scripts": {
+    "lint": "eslint src",
+    "start": "electron .",
+    "build": "build",
+    "pack": "build --dir"
+  },
+  "devDependencies": {
+    "electron": "^1.6.10",
+    "electron-builder": "^18.6.2",
+    "eslint": "^3.19.0",
+    "eslint-config-google": "^0.8.0",
+    "eslint-plugin-html": "^2.0.3"
+  },
+  "build": {
+    "productName": "Clippy",
+    "appId": "com.ramlmn.clippy",
+    "files": [
+      "src/**/*"
+    ],
+    "win": {
+      "icon": "media/clip-icon.ico",
+      "target": [
+        "nsis"
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "license": "LICENSE",
+      "perMachine": true,
+      "deleteAppDataOnUninstall": true
+    }
+  }
+}

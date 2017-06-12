@@ -1,0 +1,94 @@
+<link rel="import" href="./clippy-element.html">
+
+<template id="tmpl-clippy-app">
+  <style>
+    :host {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      background: #fff;
+      border-radius: .3em;
+      overflow: hidden;
+      border: 1px solid #ccc;
+      box-shadow: 0 0px 10px 0 rgba(0, 0, 0, .14),
+        0 4px 18px 0 rgba(0, 0, 0, .12),
+        0 3px 5px -2px rgba(0, 0, 0, .2);
+    }
+  </style>
+  <slot></slot>
+</template>
+
+<script>
+  class ClippyApp extends ClippyElement {
+    static get is() {
+      return 'clippy-app';
+    }
+
+    ready() {
+      const {ipcRenderer, clipboard} = require('electron');
+
+      // Notifiy main process to store sender
+      window.addEventListener('load', _ => {
+        ipcRenderer.send('init');
+
+        // New clipboard items detected by watcher appear here
+        ipcRenderer.on('clipboard-item', (event, item) => {
+          // Get images directly from clipboard,
+          // beacause buffers cannot be sent over ipc
+          if (item.type === 'text') {
+            // Text processing is damn easy
+            item.text = clipboard.readText();
+          } else if (item.type === 'image') {
+            // Get image data
+            const imageData = clipboard.readImage();
+            const aspectRatio = imageData.getAspectRatio();
+            const dim = imageData.getSize();
+
+            // Scaling options for thumb
+            const resizeOptions = {
+              width: 300,
+              height: 300,
+            };
+
+            if (dim.width > 300 || dim.height > 300) {
+              if (dim.width > dim.height) {
+                resizeOptions.height = 300 / aspectRatio;
+              } else {
+                resizeOptions.width = 300 / aspectRatio;
+              }
+            } else {
+              resizeOptions.width = dim.width;
+              resizeOptions.height = dim.height;
+            }
+
+            // Resize image for a thumbnail
+            const thumb = imageData.resize(resizeOptions);
+
+            // Set data to item
+            item.data = imageData;
+            item.width = dim.width;
+            item.height = dim.height;
+            item.thumb = thumb.toDataURL();
+          }
+
+          // Call items to handle the item
+          Clippy.items.addItem(item);
+        });
+
+        // When it says so
+        ipcRenderer.on('clear-items', _ => {
+          Clippy.items.clearItems();
+        });
+      });
+
+      // Critical key events
+      window.addEventListener('keyup', event => {
+        if (event.keyCode === 27) {
+          ipcRenderer.send('hide');
+        }
+      });
+    }
+  }
+
+  window.customElements.define(ClippyApp.is, ClippyApp);
+</script>

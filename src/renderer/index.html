@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Ram Lmn" />
+
+    <link rel="icon" sizes="any" href="./img/clip-256x256.png">
+
+    <title>Clippy</title>
+    <link href="./stylesheets/fonts.css" rel="stylesheet">
+    <link href="./stylesheets/main.css" rel="stylesheet">
+
+    <link href="./components/clippy-app.html" rel="import">
+    <link href="./components/clippy-previewer.html" rel="import">
+    <link href="./components/clippy-items.html" rel="import">
+    <link href="./components/clippy-search.html" rel="import">
+  </head>
+  <body tabindex="0">
+    <clippy-app>
+      <clippy-search id="search"></clippy-search>
+      <section class="panes-container">
+        <clippy-items id="items"></clippy-items>
+        <clippy-previewer id="previewer"></clippy-previewer>
+      </section>
+    </clippy-app>
+  </body>
+</html>
