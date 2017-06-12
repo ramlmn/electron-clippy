@@ -2,12 +2,12 @@
 A clipboard manager built on [electron](https://github.com/electron/electron/), using [WebComponents](https://developer.mozilla.org/en-US/docs/Web/Web_Components)
 
 ## Installation
-> **Note:** Pre-built [binaries](releases) are available for Windows only
+> **Note:** Pre-built [binaries](https://github.com/ramlmn/electron-clippy/releases) are available for Windows only
 
 Clone the repo and install dependencies
 ```
-$ git clone https://github.com/ramlmn/clippy.git
-$ cd clippy
+$ git clone https://github.com/ramlmn/electron-clippy.git
+$ cd electron-clippy
 $ npm i
 ```
 
