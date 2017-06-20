@@ -1,10 +1,12 @@
 <link rel="import" href="./clippy-element.html">
 
-<template id="tmpl-clippy-search">
+<template id="tmpl-clippy-toolbar">
   <style>
     :host {
       display: flex;
       width: 100%;
+      align-items: center;
+      padding: .8em 1em;
     }
 
     :host * {
@@ -13,19 +15,40 @@
 
     #searchInput {
       width: 100%;
-      padding: .8rem 1rem;
       margin: 0;
       font: inherit;
       color: var(--color-accented, inherit);
       font-size: 1.25em;
       border: none;
       cursor: text;
+      flex: 1;
+      padding: 0;
     }
 
     #searchInput:focus,
-    #searchInput:active {
+    #searchInput:active,
+    #settingsBtn:focus,
+    #settingsBtn:active {
       border: none;
       outline: none;
+    }
+
+    #settingsBtn {
+      font: inherit;
+      width: 2em;
+      height: 2em;
+      background: transparent;
+      color: var(--color-accented, inherit);
+      border: none;
+      margin-left: 0.5em;
+      padding: 0.3em;
+    }
+
+    #settingsBtn svg {
+      fill: currentColor;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
     }
 
     ::-webkit-search-cancel-button {
@@ -33,12 +56,17 @@
     }
   </style>
   <input id="searchInput" type="search" placeholder="Search..." autofocus autocomplete="false">
+  <button id="settingsBtn">
+    <svg height="48" viewBox="0 0 24 24" width="48" xmlns="http://www.w3.org/2000/svg">
+      <path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"/>
+    </svg>
+  </button>
 </template>
 
 <script>
-  class ClippySearch extends ClippyElement {
+  class ClippyToolbar extends ClippyElement {
     static get is() {
-      return 'clippy-search';
+      return 'clippy-toolbar';
     }
 
     constructor() {
@@ -56,6 +84,10 @@
       this.$.searchInput.addEventListener('keydown', this._onKeyDown);
       this.$.searchInput.addEventListener('input', this._onInput);
       window.addEventListener('keydown', this._onWindowKeyDown);
+
+      this.$.settingsBtn.addEventListener('click', _ => {
+        Clippy.settings.show();
+      });
     }
 
     _onKeyUp(event) {
@@ -83,7 +115,13 @@
       Clippy.items.filter(this.$.searchInput.value.trim());
     }
 
-    _onWindowKeyDown() {
+    _onWindowKeyDown(event) {
+      // It might be an event for settings
+      // Do-not handle ESC in anyway
+      if (event.keyCode === 27 || Clippy.settings.visible) {
+        return;
+      }
+
       // Damn, had to do this...
       if (document.activeElement !== this.$.searchInput) {
         this.$.searchInput.focus();
@@ -91,5 +129,5 @@
     }
   }
 
-  window.customElements.define(ClippySearch.is, ClippySearch);
+  window.customElements.define(ClippyToolbar.is, ClippyToolbar);
 </script>

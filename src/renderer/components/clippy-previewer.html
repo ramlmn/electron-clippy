@@ -110,7 +110,7 @@
       // Preview the item
       if (item.type === 'text') {
         const content = item.text;
-        const length = content.length;
+        const length = [...content].length;
         const time = this._formatTime(item.timestamp);
 
         this.$.code.classList.remove('hidden');

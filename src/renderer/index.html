@@ -11,18 +11,23 @@
     <link href="./stylesheets/fonts.css" rel="stylesheet">
     <link href="./stylesheets/main.css" rel="stylesheet">
 
-    <link href="./components/clippy-app.html" rel="import">
-    <link href="./components/clippy-previewer.html" rel="import">
-    <link href="./components/clippy-items.html" rel="import">
-    <link href="./components/clippy-search.html" rel="import">
+    <link rel="import" href="./components/clippy-app.html">
+    <link rel="import" href="./components/clippy-previewer.html">
+    <link rel="import" href="./components/clippy-items.html">
+    <link rel="import" href="./components/clippy-settings.html">
+    <link rel="import" href="./components/clippy-toolbar.html">
+    <link rel="import" href="./components/material-switch.html">
   </head>
   <body tabindex="0">
     <clippy-app>
-      <clippy-search id="search"></clippy-search>
+      <clippy-toolbar id="toolbar"></clippy-toolbar>
       <section class="panes-container">
         <clippy-items id="items"></clippy-items>
         <clippy-previewer id="previewer"></clippy-previewer>
       </section>
+      <clippy-settings id="settings" role="dialog" aria-labelledby="title">
+        <material-switch id="startup">Run at startup</material-switch>
+      </clippy-settings>
     </clippy-app>
   </body>
 </html>

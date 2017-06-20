@@ -1,6 +1,6 @@
 {
   "name": "clippy",
-  "version": "1.0.0-alpha",
+  "version": "1.0.0-alpha.2",
   "description": "A clipboard manager built on electron",
   "license": "MIT",
   "repository": "ramlmn/electron-clippy",
@@ -42,5 +42,8 @@
       "perMachine": true,
       "deleteAppDataOnUninstall": true
     }
+  },
+  "dependencies": {
+    "auto-launch": "^5.0.1"
   }
 }
