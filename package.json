@@ -28,7 +28,8 @@
     "productName": "Clippy",
     "appId": "com.ramlmn.clippy",
     "files": [
-      "src/**/*"
+      "src/**/*",
+      "node_modules"
     ],
     "win": {
       "icon": "media/clip-icon.ico",
