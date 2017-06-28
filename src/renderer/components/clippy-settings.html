@@ -76,86 +76,88 @@
 </template>
 
 <script>
-  const TrapKeyboard = require('./scripts/trap-keyboard.js');
-  class ClippySettings extends ClippyElement {
-    static get is() {
-      return 'clippy-settings';
-    }
-
-    constructor() {
-      super();
-
-      this.show = this.show.bind(this);
-      this.hide = this.hide.bind(this);
-      this._onKeyup = this._onKeyup.bind(this);
-      this.trap = new TrapKeyboard(this);
-
-      this.stats = {};
-    }
-
-    ready() {
-      // Add event listeners
-      this.$.scrim.addEventListener('click', this.hide);
-
-      this.$.startup.addEventListener('change', _ => {
-        this.dispatchEvent(new CustomEvent('settings', {
-          detail: {startup: this.$.startup.checked}
-        }));
-      })
-    }
-
-    _updateSettings() {
-      if (!this.stats) {
-        return;
+  (_ => {
+    const TrapKeyboard = require('./scripts/trap-keyboard.js');
+    class ClippySettings extends ClippyElement {
+      static get is() {
+        return 'clippy-settings';
       }
 
-      if (!this.stats.accelerator) {
-        // Accelerator was not registedred and probably cannot be used now
+      constructor() {
+        super();
+
+        this.show = this.show.bind(this);
+        this.hide = this.hide.bind(this);
+        this._onKeyup = this._onKeyup.bind(this);
+        this.trap = new TrapKeyboard(this);
+
+        this.stats = {};
       }
 
-      if (!this.stats.startup) {
-        // App is not configured to run at startup
-        this.$.startup.checked = false;
-      } else {
+      ready() {
+        // Add event listeners
+        this.$.scrim.addEventListener('click', this.hide);
 
+        this.$.startup.addEventListener('change', _ => {
+          this.dispatchEvent(new CustomEvent('settings', {
+            detail: {startup: this.$.startup.checked}
+          }));
+        })
+      }
+
+      _updateSettings() {
+        if (!this.stats) {
+          return;
+        }
+
+        if (!this.stats.accelerator) {
+          // Accelerator was not registedred and probably cannot be used now
+        }
+
+        if (!this.stats.startup) {
+          // App is not configured to run at startup
+          this.$.startup.checked = false;
+        } else {
+
+        }
+      }
+
+      _onKeyup(event) {
+        if (event.keyCode === 27) {
+          event.preventDefault();
+          event.stopPropagation();
+          this.hide();
+        }
+      }
+
+      statsChange(stats) {
+        this.stats = Object.assign({}, this.stats, stats);
+        this._updateSettings();
+      }
+
+      show() {
+        this.addEventListener('keyup', this._onKeyup);
+        this.trap.trap();
+
+        requestAnimationFrame(_ => {
+          this.setAttribute('visible', '');
+        });
+      }
+
+      hide() {
+        this.removeEventListener('keyup', this._onKeyup);
+        this.trap.unTrap();
+
+        requestAnimationFrame(_ => {
+          this.removeAttribute('visible');
+        });
+      }
+
+      get visible() {
+        return this.hasAttribute('visible');
       }
     }
 
-    _onKeyup(event) {
-      if (event.keyCode === 27) {
-        event.preventDefault();
-        event.stopPropagation();
-        this.hide();
-      }
-    }
-
-    statsChange(stats) {
-      this.stats = Object.assign({}, this.stats, stats);
-      this._updateSettings();
-    }
-
-    show() {
-      this.addEventListener('keyup', this._onKeyup);
-      this.trap.trap();
-
-      requestAnimationFrame(_ => {
-        this.setAttribute('visible', '');
-      });
-    }
-
-    hide() {
-      this.removeEventListener('keyup', this._onKeyup);
-      this.trap.unTrap();
-
-      requestAnimationFrame(_ => {
-        this.removeAttribute('visible');
-      });
-    }
-
-    get visible() {
-      return this.hasAttribute('visible');
-    }
-  }
-
-  window.customElements.define(ClippySettings.is, ClippySettings);
+    window.customElements.define(ClippySettings.is, ClippySettings);
+  })();
 </script>

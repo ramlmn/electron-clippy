@@ -1,6 +1,6 @@
 {
   "name": "clippy",
-  "version": "1.0.0-alpha.2",
+  "version": "1.0.0-alpha.3",
   "description": "A clipboard manager built on electron",
   "license": "MIT",
   "repository": "ramlmn/electron-clippy",
@@ -18,21 +18,22 @@
     "pack": "build --dir"
   },
   "devDependencies": {
-    "electron": "^1.6.10",
-    "electron-builder": "^18.6.2",
-    "eslint": "^3.19.0",
+    "electron": "^1.6.11",
+    "electron-builder": "^19.8.0",
+    "eslint": "^4.1.1",
     "eslint-config-google": "^0.8.0",
-    "eslint-plugin-html": "^2.0.3"
+    "eslint-plugin-html": "^3.0.0"
   },
   "build": {
     "productName": "Clippy",
     "appId": "com.ramlmn.clippy",
     "files": [
       "src/**/*",
-      "node_modules"
+      "node_modules",
+      "!(*.markdown|*.md|*.txt|.*|LICENSE|README|test)"
     ],
     "win": {
-      "icon": "media/clip-icon.ico",
+      "icon": "media/icon/clip-icon.ico",
       "target": [
         "nsis"
       ]

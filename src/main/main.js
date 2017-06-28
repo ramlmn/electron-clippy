@@ -27,7 +27,7 @@ const trayTemplate = [{
   }, {
     label: 'Quit',
     click: _ => {
-      win.close();
+      mainWindow.close();
     },
   }];
 
@@ -53,9 +53,9 @@ app.on('ready', () => {
 
 // Settingup clipboard watcher
 const watcher = new ClipboardWatcher();
-watcher.onData = (data) => {
+watcher.on('item', data => {
   rendererChannel.send('clipboard-item', data);
-};
+});
 
 
 ipcMain.once('init', onInit);

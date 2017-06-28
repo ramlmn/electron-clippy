@@ -1,4 +1,7 @@
+'use strict';
+
 const {clipboard} = require('electron');
+const EventEmitter = require('events');
 const crypto = require('crypto');
 
 
@@ -8,10 +11,9 @@ const crypto = require('crypto');
  *
  * @class ClipboardWatcher
  */
-class ClipboardWatcher {
+class ClipboardWatcher extends EventEmitter {
   constructor() {
-    // A blank event emitter that gets replaced
-    this.onData = _ => {};
+    super();
 
     // A flag to stop recursion
     this._isListening = false;
@@ -25,10 +27,7 @@ class ClipboardWatcher {
 
 
   /**
-   * Start listening for new items in clipboard,
-   * new items are passed to the callback 'onData' which has to be overridden
-   * over the instance of this class
-   *
+   * Start listening for new items in clipboard
    *
    * @memberof ClipboardWatcher
    */
@@ -40,9 +39,9 @@ class ClipboardWatcher {
     this._watchLoop();
   }
 
+
   /**
    * A recursive function which listens for changes in system clipboard
-   *
    *
    * @memberof ClipboardWatcher
    */
@@ -52,72 +51,176 @@ class ClipboardWatcher {
       return;
     }
 
-    // Extract possible text and image data
-    const clipboardTextData = clipboard.readText();
-    const clipboardImageData = clipboard.readImage();
+    this._scrapeClipboard();
 
-    // If text is on the clipboard
-    // And it has to be non-whitespace
-    if (clipboardTextData.toString().trim()) {
-      // Generate a hash from the text
-      const textHash = crypto
-        .createHash('sha256')
-        .update(clipboardTextData)
-        .digest('hex');
-
-      // If the previous item's hash and current item's hash is exactly the same
-      // then it is likely that the clipboard content's havent chahged from the
-      // last time
-      if (this._recentClipItem.hash !== textHash) {
-        const newTextItem = {
-          type: 'text',
-          hash: textHash,
-          timestamp: Date.now(),
-        };
-        // this.clipboardItems.set(textHash, newTextItem);
-
-        this._recentClipItem = newTextItem;
-        this._triggerNewItem();
-      }
-    } else if (clipboardImageData && !clipboardImageData.isEmpty()) {
-      // We don't have text on clipboard but likely an image
-      // Extract the image as png
-      const pngImageData = clipboardImageData.toPNG();
-
-      // Compute the hash from png data
-      const imageHash = crypto
-        .createHash('sha256')
-        .update(pngImageData)
-        .digest('hex');
-
-      // Similar to plain text, if the hash hasn't changed then the contents
-      // haven't changed
-      if (this._recentClipItem.hash !== imageHash) {
-        const newImageItem = {
-          type: 'image',
-          hash: imageHash,
-          size: pngImageData.byteLength,
-          timestamp: Date.now(),
-        };
-        // this.clipboardItems.set(imageHash, newImageItem);
-
-        this._recentClipItem = newImageItem;
-        this._triggerNewItem();
-      }
-    }
-
-    // Call this recursively after 500ms for text, and a bit longer for images
-    setTimeout(this._watchLoop, this._recentClipItem.type === 'image' ? 2000 : 500);
+    setTimeout(this._watchLoop, 1000);
   }
 
+
   /**
-   * Calls tha onData callback with the new item from clipboard
-   *
+   * The function that scrapes the clipboard, analyzes all the available types
+   * and generates a clipboard item
    *
    * @memberof ClipboardWatcher
    */
-  _triggerNewItem() {
-    this.onData(this._recentClipItem);
+  _scrapeClipboard() {
+    const availableFormats = clipboard.availableFormats();
+
+    // This happens when user copies something that is not accessible by
+    // electron (like copying system files)
+    if (availableFormats.length === 0) {
+      return;
+    }
+
+    // A template with all the data needed to represent a clipboard item
+    const newClipItem = {
+      hash: '',
+      type: '',
+      timestamp: 0,
+      data: {
+        text: '',
+        html: '',
+        rtf: '',
+        image: '',
+      },
+
+      // Data for image
+      thumb: '',
+      width: 0,
+      height: 0,
+
+      // Data for text
+      length: 0,
+    };
+
+    // Extract all the available formats of data on the clipboard
+    availableFormats.map(format => {
+      // html and rtf formats are also considered plain text
+      if (format.startsWith('text/')) {
+        newClipItem.type = 'text';
+
+        if (format === 'text/plain') {
+          newClipItem.data.text = clipboard.readText();
+        } else if (format === 'text/html') {
+          newClipItem.data.html = clipboard.readHTML();
+        } else if (format === 'text/rtf') {
+          newClipItem.data.rtf = clipboard.readRTF();
+        }
+      } else if (format.startsWith('image/')) {
+        newClipItem.type = 'image';
+
+        const imageData = clipboard.readImage();
+        newClipItem.data.image = imageData.toDataURL();
+      }
+    });
+
+    // Check if the new item is the same as old one
+    // (i.e. if clipboard contents have changed)
+    if (!this._isNewItem(newClipItem)) {
+      return;
+    }
+
+    // Some more comparions to set more data to the item
+    // width and height for image (also generate a thumbnail)
+    // character length for plain text
+    // also cryptographic hash to identify them
+    if (newClipItem.type === 'image') {
+      newClipItem.hash = crypto
+        .createHash('sha256')
+        .update(newClipItem.data.image)
+        .digest('hex');
+
+      const imageData = clipboard.readImage();
+      const imageDimensions = imageData.getSize();
+
+      newClipItem.width = imageDimensions.width;
+      newClipItem.height = imageDimensions.height;
+
+      newClipItem.thumb = this._generateThumbForImage(imageData);
+    } else if (newClipItem.data.text.trim()) {
+      newClipItem.length = [...newClipItem.data.text].length;
+
+      newClipItem.hash = crypto
+        .createHash('sha256')
+        .update(newClipItem.data.text)
+        .digest('hex');
+    } else {
+      return;
+    }
+
+    newClipItem.timestamp = Date.now();
+
+    this._recentClipItem = newClipItem;
+    this.emit('item', newClipItem);
+  }
+
+
+  /**
+   * Generates a base64 thumbnail for the provided native image
+   *
+   * @param {NativeImage} nativeImageData For which thumbnail is to be generated
+   * @returns {string} base64 representation of thumbnail
+   * @memberof ClipboardWatcher
+   */
+  _generateThumbForImage(nativeImageData) {
+    const aspectRatio = nativeImageData.getAspectRatio();
+    const imageDimensions = nativeImageData.getSize();
+
+    const resizeOptions = {
+      width: 300,
+      height: 300,
+    };
+
+    if (imageDimensions.width > resizeOptions.width) {
+      resizeOptions.width /= aspectRatio;
+    } else {
+      resizeOptions.width = imageDimensions.width;
+    }
+
+    if (imageDimensions.height > resizeOptions.height) {
+      resizeOptions.height /= aspectRatio;
+    } else {
+      resizeOptions.height = imageDimensions.height;
+    }
+
+    const thumb = nativeImageData.resize(resizeOptions);
+    return thumb.toDataURL();
+  }
+
+
+  /**
+   * Compares with the old item available and determines if it is a new item
+   * or exactly same as the old one
+   *
+   * @param {Object} newItem
+   * @returns {Boolean}
+   * @memberof ClipboardWatcher
+   */
+  _isNewItem(newItem) {
+    const oldItem = this._recentClipItem;
+
+    // For the first time app starts (there is no previous item)
+    if (!oldItem) {
+      return true;
+    }
+
+    // Checking if their types are same
+    // If they are not then is is obviously a new item
+    if (oldItem.type !== newItem.type) {
+      return true;
+    }
+
+    // For an image to be new its base64 string should be different
+    // Text is considered new if any of `text`, `html`, `rtf` parts change
+    if (oldItem.type === 'image') {
+      return (oldItem.data.image !== newItem.data.image);
+    } else if (oldItem.type === 'text') {
+      return (
+        oldItem.data.text !== newItem.data.text ||
+        oldItem.data.html !== newItem.data.html ||
+        oldItem.data.rtf !== newItem.data.rtf
+      );
+    }
   }
 }
 

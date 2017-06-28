@@ -19,93 +19,56 @@
 </template>
 
 <script>
-  const {ipcRenderer, clipboard} = require('electron');
+  (_ => {
+    const {ipcRenderer, clipboard} = require('electron');
 
-  class ClippyApp extends ClippyElement {
-    static get is() {
-      return 'clippy-app';
-    }
+    class ClippyApp extends ClippyElement {
+      static get is() {
+        return 'clippy-app';
+      }
 
-    constructor() {
-      super();
+      constructor() {
+        super();
 
-      this.init = this.init.bind(this);
-    }
+        this.init = this.init.bind(this);
+      }
 
-    ready() {
-      window.addEventListener('load', this.init);
+      ready() {
+        window.addEventListener('load', this.init);
 
-      // Critical key events
-      window.addEventListener('keyup', event => {
-        if (event.keyCode === 27 && !event.defaultPrevented) {
-          ipcRenderer.send('hide');
-        }
-      });
-    }
-
-    init() {
-      // Notifiy main process to store sender
-      ipcRenderer.send('init');
-
-      // New clipboard items detected by watcher appear here
-      ipcRenderer.on('clipboard-item', (event, item) => {
-        // Get images directly from clipboard,
-        // beacause buffers cannot be sent over ipc
-        if (item.type === 'text') {
-          // Text processing is damn easy
-          item.text = clipboard.readText();
-        } else if (item.type === 'image') {
-          // Get image data
-          const imageData = clipboard.readImage();
-          const aspectRatio = imageData.getAspectRatio();
-          const dim = imageData.getSize();
-
-          // Scaling options for thumb
-          const resizeOptions = {
-            width: 300,
-            height: 300,
-          };
-
-          if (dim.width > 300 || dim.height > 300) {
-            if (dim.width > dim.height) {
-              resizeOptions.height = 300 / aspectRatio;
-            } else {
-              resizeOptions.width = 300 / aspectRatio;
-            }
-          } else {
-            resizeOptions.width = dim.width;
-            resizeOptions.height = dim.height;
+        // Critical key events
+        window.addEventListener('keyup', event => {
+          if (event.keyCode === 27 && !event.defaultPrevented) {
+            ipcRenderer.send('hide');
           }
+        });
+      }
 
-          // Resize image for a thumbnail
-          const thumb = imageData.resize(resizeOptions);
+      init() {
+        // Notifiy main process to store sender
+        ipcRenderer.send('init');
 
-          // Set data to item
-          item.data = imageData;
-          item.width = dim.width;
-          item.height = dim.height;
-          item.thumb = thumb.toDataURL();
-        }
+        // New clipboard items detected by watcher appear here
+        ipcRenderer.on('clipboard-item', (event, item) => {
+          Clippy.items.addItem(item);
+        });
 
-        // Call items to handle the item
-        Clippy.items.addItem(item);
-      });
+        // When it says so
+        ipcRenderer.on('clear-items', _ => {
+          Clippy.items.clearItems();
+        });
 
-      // When it says so
-      ipcRenderer.on('clear-items', _ => {
-        Clippy.items.clearItems();
-      });
+        ipcRenderer.on('stats', (event, item) => {
+          this.stats = item;
+          Clippy.settings.statsChange(this.stats);
+        });
 
-      ipcRenderer.on('stats', (event, item) => {
-        this.stats = item;
-        Clippy.settings.statsChange(this.stats);
-      });
-
-      Clippy.settings.addEventListener('settings', event => {
-        ipcRenderer.send('settings', event.detail);
-      });
+        Clippy.settings.addEventListener('settings', event => {
+          ipcRenderer.send('settings', event.detail);
+        });
+      }
     }
-  }
 
-  window.customElements.define(ClippyApp.is, ClippyApp);
+    window.customElements.define(ClippyApp.is, ClippyApp);
+  })();
 </script>

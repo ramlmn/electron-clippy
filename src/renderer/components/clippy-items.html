@@ -71,295 +71,287 @@
 </template>
 
 <script>
-  class ClippyItems extends ClippyElement {
-    static get is() {
-      return 'clippy-items';
-    }
+  (_ => {
+    const {clipboard, nativeImage} = require('electron');
 
-    constructor() {
-      super();
-
-      // Basic binding
-      this._selectNext = this._selectNext.bind(this);
-      this._selectPrevious = this._selectPrevious.bind(this);
-      this._onWindowKeyUp = this._onWindowKeyUp.bind(this);
-      this._setSelection = this._setSelection.bind(this);
-
-      this._clipboardItems = new Map();
-
-      // Used to track the currently selected item
-      this._currentSelection = null;
-    }
-
-    ready() {
-      // Add event listeners
-      window.addEventListener('keydown', this._onWindowKeyUp);
-      // Try to select the first item
-      this._setSelection();
-    }
-
-    // Listening for up and down traversal
-    _onWindowKeyUp(event) {
-      if (event.keyCode === 38) {
-        // Traverse up
-        this._selectPrevious();
-      } else if (event.keyCode === 40) {
-        // Traverse down
-        this._selectNext();
+    class ClippyItems extends ClippyElement {
+      static get is() {
+        return 'clippy-items';
       }
-    }
 
-    /**
-     * Filter clipboard items based on search query and view results
-     *
-     * @param {String} pattern
-     *
-     * @class ClippyItems
-     */
-    filter(pattern) {
-      const tmp = document.createElement('span');
-      tmp.textContent = pattern;
-      pattern = tmp.textContent;
+      constructor() {
+        super();
 
-      // If no pattern is found, show all items and trigger selection
-      if (!pattern) {
-        this._filterItems();
-        this._setSelection();
-      } else {
-        // Filter items from the map
-        const filteredItems = Array.from(this._clipboardItems)
-          // Items from map are returned as key value pairs in an array [key, value],
-          // We only need the 'value'
-          .map(pair => pair[1])
-          .filter(item => {
-            try {
-              // Create a rew regexp ot of search query
-              const re = new RegExp(pattern, 'gi');
-              if (item.type === 'text' && item.text.match(re)) {
-                // Match found
-                return true;
-              } else {
-                // No match
-                return false;
-              }
-            } catch (error) {
-              // User input might be failing RegExp (ex: /*/*/**/),
-              // then show all items to user
-              return true;
-            }
-          });
+        // Basic binding
+        this._selectNext = this._selectNext.bind(this);
+        this._selectPrevious = this._selectPrevious.bind(this);
+        this._onWindowKeyUp = this._onWindowKeyUp.bind(this);
+        this._setSelection = this._setSelection.bind(this);
 
-        // Sort items according to timestamp, show them, and chage selection
-        const sortedItems = filteredItems.sort(this._sortItems);
-        this._filterItems(sortedItems);
+        this._clipboardItems = new Map();
+
+        // Used to track the currently selected item
+        this._currentSelection = null;
+      }
+
+      ready() {
+        // Add event listeners
+        window.addEventListener('keydown', this._onWindowKeyUp);
+        // Try to select the first item
         this._setSelection();
       }
-    }
 
-    /**
-     * Add a new item to list
-     *
-     * @class ClippyItems
-     */
-    addItem(newItem) {
-      if (this._clipboardItems.has(newItem.hash)) {
-        // If item already exist, then check a few things
-        const oldItem = this._clipboardItems.get(newItem.hash);
-
-        // Skip handling the element if, the difference is time less than a second
-        if ((newItem.hash - oldItem.hash) < 1000) {
-          return;
+      // Listening for up and down traversal
+      _onWindowKeyUp(event) {
+        if (event.keyCode === 38) {
+          // Traverse up
+          this._selectPrevious();
+        } else if (event.keyCode === 40) {
+          // Traverse down
+          this._selectNext();
         }
       }
 
-      // Store the item and, render its dom
-      this._clipboardItems.set(newItem.hash, newItem);
-      this._renderNewItem(newItem);
-    }
+      /**
+       * Filter clipboard items based on search query and view results
+       *
+       * @param {String} pattern
+       *
+       * @class ClippyItems
+       */
+      filter(pattern) {
+        const tmp = document.createElement('span');
+        tmp.textContent = pattern;
+        pattern = tmp.textContent;
 
-    _sortItems(a, b) {
-      return a.timestamp - b.timestamp;
-    }
+        // If no pattern is found, show all items and trigger selection
+        if (!pattern) {
+          this._filterItems();
+          this._setSelection();
+        } else {
+          // Filter items from the map
+          const filteredItems = Array.from(this._clipboardItems)
+            // Items from map are returned as key value pairs in an array [key, value],
+            // We only need the 'value'
+            .map(pair => pair[1])
+            .filter(item => {
+              try {
+                // Create a rew regexp ot of search query
+                const re = new RegExp(pattern, 'gi');
+                if (item.type === 'text' && item.data.text.match(re)) {
+                  // Match found
+                  return true;
+                } else {
+                  // No match
+                  return false;
+                }
+              } catch (error) {
+                // User input might be failing RegExp (ex: /*/*/**/),
+                // then show all items to user
+                return true;
+              }
+            });
 
-    clearItems() {
-      this._clipboardItems.clear();
-      this._setSelection();
-    }
-
-    _renderNewItem(item) {
-      // Get a DOM item
-      const domItem = this._createDomForItem(item);
-
-      // Fisrt find duplicated and remove them, because the data has to change
-      const duplicates = this.$.cbItems.querySelectorAll(`[data-hash="${item.hash}"]`);
-      duplicates.forEach(node => {
-        this.$.cbItems.removeChild(node);
-      });
-
-      // Insert at the top
-      this.$.cbItems.insertBefore(domItem, this.$.cbItems.firstElementChild);
-      // When user clicks on the item, the item has to be selected
-      domItem.addEventListener('click', _ => this.select(domItem));
-
-      // Trigger selection to select the top most item
-      this._setSelection();
-    }
-
-    _createDomForItem(item) {
-      const node = document.createElement('li');
-      node.setAttribute('data-type', item.type);
-      node.setAttribute('data-hash', item.hash);
-      node.setAttribute('data-timestamp', item.timestamp);
-      node.classList.add('cb-item');
-
-      if (item.type === 'image') {
-        node.textContent = `Image: ${item.width}x${item.height} (${this._formatSize(item.size)})`;
-      } else if (item.type === 'text') {
-        node.textContent = item.text.trim().substr(0, 100);
+          // Sort items according to timestamp, show them, and chage selection
+          const sortedItems = filteredItems.sort(this._sortItems);
+          this._filterItems(sortedItems);
+          this._setSelection();
+        }
       }
 
-      return node;
-    }
+      /**
+       * Add a new item to list
+       *
+       * @class ClippyItems
+       */
+      addItem(newItem) {
+        // Store the item and, render its dom
+        this._clipboardItems.set(newItem.hash, newItem);
+        this._renderNewItem(newItem);
+      }
 
-    _filterItems(items) {
-      // Show or hide results
-      if (!items) {
-        // Show all items
-        this._clipboardItems.forEach(item => {
+      _sortItems(a, b) {
+        return a.timestamp - b.timestamp;
+      }
+
+      clearItems() {
+        this._clipboardItems.clear();
+        this._setSelection();
+        const nodes = this.$.cbItems.querySelectorAll(`[data-hash]`);
+        nodes.forEach(node => {
+          this.$.cbItems.removeChild(node);
+        });
+      }
+
+      _renderNewItem(item) {
+        // Get a DOM item
+        const domItem = this._createDomForItem(item);
+
+        // Fisrt find duplicated and remove them, because the data has to change
+        const duplicates = this.$.cbItems.querySelectorAll(`[data-hash="${item.hash}"]`);
+        duplicates.forEach(node => {
+          this.$.cbItems.removeChild(node);
+        });
+
+        // Insert at the top
+        this.$.cbItems.insertBefore(domItem, this.$.cbItems.firstElementChild);
+        // When user clicks on the item, the item has to be selected
+        domItem.addEventListener('click', _ => this.select(domItem));
+
+        // Trigger selection to select the top most item
+        this._setSelection();
+      }
+
+      _createDomForItem(item) {
+        const node = document.createElement('li');
+        node.setAttribute('data-type', item.type);
+        node.setAttribute('data-hash', item.hash);
+        node.setAttribute('data-timestamp', item.timestamp);
+        node.classList.add('cb-item');
+
+        if (item.type === 'image') {
+          node.textContent = `Image: ${item.width}x${item.height}`;
+        } else if (item.type === 'text') {
+          node.textContent = item.data.text.trim().substr(0, 100);
+        }
+
+        return node;
+      }
+
+      _filterItems(items) {
+        // Show or hide results
+        if (!items) {
+          // Show all items
+          this._clipboardItems.forEach(item => {
+            const node = this.$.cbItems.querySelector(`[data-hash="${item.hash}"]`);
+            node.classList.remove('hidden');
+          });
+          return;
+        }
+
+        // Get all the nodes, hide them...
+        const nodes = this.$.cbItems.querySelectorAll('.cb-item');
+        nodes.forEach(node => {
+          node.classList.add('hidden');
+        });
+
+        // ...and then show only the ones needed
+        items.forEach(item => {
           const node = this.$.cbItems.querySelector(`[data-hash="${item.hash}"]`);
           node.classList.remove('hidden');
         });
-        return;
-      }
 
-      // Get all the nodes, hide them...
-      const nodes = this.$.cbItems.querySelectorAll('.cb-item');
-      nodes.forEach(node => {
-        node.classList.add('hidden');
-      });
-
-      // ...and then show only the ones needed
-      items.forEach(item => {
-        const node = this.$.cbItems.querySelector(`[data-hash="${item.hash}"]`);
-        node.classList.remove('hidden');
-      });
-
-      // Trigger a selection, to select the top most one
-      this._setSelection();
-    }
-
-    /**
-     * Select the current item from the list and copy it to system clipboard
-     *
-     * @class ClippyItems
-     */
-    select() {
-      // Select current and copy it to clipboard
-      if (!this._currentSelection) {
-        return;
-      }
-
-      const hash = this._currentSelection.dataset.hash;
-      const item = this._clipboardItems.get(hash);
-
-      if (item.type === 'image') {
-        clipboard.writeImage(item.data);
-      } else if (item.type === 'text') {
-        clipboard.writeText(item.text);
-      }
-
-      item.timestamp = Date.now();
-      this._renderNewItem(item);
-    }
-
-    // Chooses an item, and set it as selected one
-    _setSelection() {
-      // First remove the attribute, if any
-      if (this._currentSelection) {
-        this._currentSelection.removeAttribute('active');
-      }
-
-      // Get the first child which is not hidden
-      this._currentSelection = this.$.cbItems.querySelector('.cb-item:not(.hidden)');
-
-      // If it existes, then set attribute to it
-      if (this._currentSelection) {
-        this._currentSelection.setAttribute('active', '');
-      }
-
-      // Trigger that there is a selection
-      this._triggerSelection();
-    }
-
-    // Triggers previewing when selection changes
-    _triggerSelection() {
-      if (!this._currentSelection) {
-        Clippy.previewer.preview();
-        return;
-      }
-
-      this.$.cbItems.scrollTop = this._currentSelection.offsetTop - this.$.cbItems.offsetHeight;
-
-      const hash = this._currentSelection.dataset.hash;
-      const item = this._clipboardItems.get(hash);
-      Clippy.previewer.preview(item);
-    }
-
-    _selectPrevious() {
-      // Move selection up
-      if (!this._currentSelection) {
-        // There is nothing to start from
+        // Trigger a selection, to select the top most one
         this._setSelection();
-      } else {
-        if (this._currentSelection.previousElementSibling) {
-          // Find the previous possible element(sibling) to select
-          let sibling = this._currentSelection.previousElementSibling;
-          while (sibling && sibling.classList.contains('hidden')) {
-            sibling = sibling.previousElementSibling;
-          }
+      }
 
-          if (sibling) {
-            // Found one, set attributes to it
-            this._currentSelection.removeAttribute('active');
-            sibling.setAttribute('active', '');
-            this._currentSelection = sibling;
-            this._triggerSelection();
+      /**
+       * Select the current item from the list and copy it to system clipboard
+       *
+       * @class ClippyItems
+       */
+      select() {
+        // Select current and copy it to clipboard
+        if (!this._currentSelection) {
+          return;
+        }
+
+        const hash = this._currentSelection.dataset.hash;
+        const item = this._clipboardItems.get(hash);
+
+        clipboard.write({
+          text: item.data.text,
+          html: item.data.html,
+          rtf: item.data.rtf,
+          image: nativeImage.createFromDataURL(item.data.image),
+        });
+
+        item.timestamp = Date.now();
+        this._renderNewItem(item);
+      }
+
+      // Chooses an item, and set it as selected one
+      _setSelection() {
+        // First remove the attribute, if any
+        if (this._currentSelection) {
+          this._currentSelection.removeAttribute('active');
+        }
+
+        // Get the first child which is not hidden
+        this._currentSelection = this.$.cbItems.querySelector('.cb-item:not(.hidden)');
+
+        // If it existes, then set attribute to it
+        if (this._currentSelection) {
+          this._currentSelection.setAttribute('active', '');
+        }
+
+        // Trigger that there is a selection
+        this._triggerSelection();
+      }
+
+      // Triggers previewing when selection changes
+      _triggerSelection() {
+        if (!this._currentSelection) {
+          Clippy.previewer.preview();
+          return;
+        }
+
+        this.$.cbItems.scrollTop = this._currentSelection.offsetTop - this.$.cbItems.offsetHeight;
+
+        const hash = this._currentSelection.dataset.hash;
+        const item = this._clipboardItems.get(hash);
+        Clippy.previewer.preview(item);
+      }
+
+      _selectPrevious() {
+        // Move selection up
+        if (!this._currentSelection) {
+          // There is nothing to start from
+          this._setSelection();
+        } else {
+          if (this._currentSelection.previousElementSibling) {
+            // Find the previous possible element(sibling) to select
+            let sibling = this._currentSelection.previousElementSibling;
+            while (sibling && sibling.classList.contains('hidden')) {
+              sibling = sibling.previousElementSibling;
+            }
+
+            if (sibling) {
+              // Found one, set attributes to it
+              this._currentSelection.removeAttribute('active');
+              sibling.setAttribute('active', '');
+              this._currentSelection = sibling;
+              this._triggerSelection();
+            }
+          }
+        }
+      }
+
+      _selectNext() {
+        // Move selection down
+        if (!this._currentSelection) {
+          // There is nothing to start from
+          this._setSelection();
+        } else {
+          if (this._currentSelection.nextElementSibling) {
+            // Find the next possible element(sibling) to select
+            let sibling = this._currentSelection.nextElementSibling;
+            while (sibling && sibling.classList.contains('hidden')) {
+              sibling = sibling.nextElementSibling;
+            }
+
+            if (sibling) {
+              // Found one, set attributes to it
+              this._currentSelection.removeAttribute('active');
+              sibling.setAttribute('active', '');
+              this._currentSelection = sibling;
+              this._triggerSelection();
+            }
           }
         }
       }
     }
 
-    _selectNext() {
-      // Move selection down
-      if (!this._currentSelection) {
-        // There is nothing to start from
-        this._setSelection();
-      } else {
-        if (this._currentSelection.nextElementSibling) {
-          // Find the next possible element(sibling) to select
-          let sibling = this._currentSelection.nextElementSibling;
-          while (sibling && sibling.classList.contains('hidden')) {
-            sibling = sibling.nextElementSibling;
-          }
-
-          if (sibling) {
-            // Found one, set attributes to it
-            this._currentSelection.removeAttribute('active');
-            sibling.setAttribute('active', '');
-            this._currentSelection = sibling;
-            this._triggerSelection();
-          }
-        }
-      }
-    }
-
-    _formatSize(bytes) {
-      // Convert bytes to 'multiple' representation
-      const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-      const i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
-      return `${Math.round(bytes / Math.pow(1024, i), 2)} ${sizes[i]}`;
-    }
-  }
-
-  window.customElements.define(ClippyItems.is, ClippyItems);
+    window.customElements.define(ClippyItems.is, ClippyItems);
+  })();
 </script>
