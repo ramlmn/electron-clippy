@@ -36,7 +36,6 @@ body {
   line-height: 1.5;
   flex-direction: column;
   background: transparent;
-  padding: 1em;
 }
 
 .panes-container {

@@ -1,30 +1,38 @@
+<h1 align="center">
+  <br>
+  <img width="200" src="https://rawgit.com/ramlmn/electron-clippy/master/media/logo.svg" alt="Clippy">
+  <br>
+  <br>
+</h1>
+
 # Clippy
-A clipboard manager built on [electron](https://github.com/electron/electron/), using [WebComponents](https://developer.mozilla.org/en-US/docs/Web/Web_Components)
+> A clipboard manager built on [electron](https://github.com/electron/electron/), using [WebComponents](https://developer.mozilla.org/en-US/docs/Web/Web_Components)
 
 ## Installation
-> **Note:** Pre-built [binaries](https://github.com/ramlmn/electron-clippy/releases) are available for Windows only
+_Linux, and Windows 7+ are supported (64-bit only)_
 
-Clone the repo and install dependencies
+### Linux
+[**Download**](https://github.com/ramlmn/electron-clippy/releases/latest) the `.AppImage` or `.deb` file
+
+_The AppImage needs to be [made executable](http://discourse.appimage.org/t/how-to-make-an-appimage-executable/80) after download_
+
+### Windows
+[**Download**](https://github.com/ramlmn/electron-clippy/releases/latest) the `.exe` file
+
+## Usage
+By default the app would be running in the background and can be accessed by the keyboard shortcut: `Ctrl+Shift+V`
+
+## Dev
+### Run
 ```
-$ git clone https://github.com/ramlmn/electron-clippy.git
-$ cd electron-clippy
-$ npm i
+$ npm install && npm start
 ```
 
-For running the application from console:
-```
-$ npm start
-```
-
-For building a binary:
+### Build
 ```
 $ npm run build
 ```
-The binary(for your platform) would be available in `dist` directory
-
-## Usage
-The app is still in beta and doesn't have a feature to customize anything.
-The app would be running in the system tray and can be accessed by the keyboard shortcut: `Ctrl+Shift+V` or `Cmd+Shift+V`
+or check [`electron-builder` docs](https://www.electron.build/multi-platform-build) 
 
 ## Acknowledgements
 * UI inspired from [Alfred app](https://www.alfredapp.com/)

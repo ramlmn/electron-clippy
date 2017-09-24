@@ -67,7 +67,6 @@ ipcMain.on('settings', handleSettings);
 
 function onClosed() {
   // Dereference the window
-  // For multiple windows store them in an array
   mainWindow = null;
 }
 
@@ -111,7 +110,7 @@ function createMainWindow() {
   win.on('blur', hideWindow);
 
   const urlToLoad = url.format({
-    pathname: path.join(__dirname, '..', 'renderer', 'index.html'),
+    pathname: path.join(__dirname, '../renderer/index.html'),
     protocol: 'file:',
     slashes: true,
   });

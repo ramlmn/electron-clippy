@@ -8,11 +8,18 @@
       flex-direction: column;
       flex: 1;
       background: #fff;
-      border-radius: .3em;
       overflow: hidden;
+      margin: 1rem;
+      border-radius: .3em;
       box-shadow: 0 0px 10px 0 rgba(0, 0, 0, .14),
         0 4px 18px 0 rgba(0, 0, 0, .12),
         0 3px 5px -2px rgba(0, 0, 0, .2);
+    }
+
+    :host(.is-linux) {
+      margin: 0;
+      box-shadow: none;
+      border-radius: 0;
     }
   </style>
   <slot></slot>
@@ -34,6 +41,10 @@
       }
 
       ready() {
+        if (process.platform === 'linux') {
+          this.classList.add('is-linux');
+        }
+
         window.addEventListener('load', this.init);
 
         // Critical key events
