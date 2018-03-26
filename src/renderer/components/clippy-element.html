@@ -16,7 +16,7 @@
       }
 
       // Append the class to the Clippy object
-      window.Clippy[this.constructor.name] = this.constructor;
+      // window.Clippy[this.constructor.name] = this.constructor;
 
       this.root = this;
       this._template = this.template;
@@ -28,20 +28,29 @@
       // Get all the children with an 'id', and set them into an object
       // Makes it ease to not query them again
       this.$ = {};
-      // From shadow dom
-      Array.from(this.root.querySelectorAll('[id]'))
-        .forEach(el => this.$[el.id] = el);
-      // From slots
-      Array.from(this.querySelectorAll('[id]'))
-        .forEach(el => this.$[el.id] = el);
 
-      // Trigger the ready, this method is overrided
+
+      // From shadow dom
+      for (const el of this.root.querySelectorAll('[id]')) {
+        if (el.id) {
+          this.$[el.id] = el;
+        }
+      }
+
+      // From slots
+      for (const el of this.querySelectorAll('[id]')) {
+        if (el.id) {
+          this.$[el.id] = el;
+        }
+      }
+
+      // Trigger the ready, this method is overriden in child
       this.ready();
     }
 
     disconnectedCallback() {
       // Delete the reference
-      delete window.Masto[this.getAttribute('id')];
+      window.Clippy[this.id] = null;
     }
 
     _parseTemplateStringToTemplate(templateString) {

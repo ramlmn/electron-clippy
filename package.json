@@ -14,15 +14,14 @@
   "scripts": {
     "lint": "eslint src",
     "start": "electron .",
-    "build": "build",
-    "pack": "build --dir"
+    "build": "build"
   },
   "devDependencies": {
-    "electron": "1.6.13",
-    "electron-builder": "^19.8.0",
-    "eslint": "^4.1.1",
+    "electron": "^1.8.4",
+    "electron-builder": "^20.6.2",
+    "eslint": "^4.19.1",
     "eslint-config-google": "^0.9.1",
-    "eslint-plugin-html": "^3.0.0"
+    "eslint-plugin-html": "^4.0.2"
   },
   "build": {
     "productName": "Clippy",
@@ -41,7 +40,7 @@
       ]
     },
     "win": {
-      "icon": "src/build-assets/icon/win",
+      "icon": "src/build-assets/icon/win/win.ico",
       "target": [
         "nsis"
       ]
@@ -54,6 +53,6 @@
     }
   },
   "dependencies": {
-    "auto-launch": "^5.0.1"
+    "auto-launch": "^5.0.5"
   }
 }

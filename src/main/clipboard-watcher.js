@@ -94,7 +94,7 @@ class ClipboardWatcher extends EventEmitter {
     };
 
     // Extract all the available formats of data on the clipboard
-    availableFormats.map(format => {
+    for (const format of availableFormats) {
       // html and rtf formats are also considered plain text
       if (format.startsWith('text/')) {
         newClipItem.type = 'text';
@@ -112,7 +112,7 @@ class ClipboardWatcher extends EventEmitter {
         const imageData = clipboard.readImage();
         newClipItem.data.image = imageData.toDataURL();
       }
-    });
+    }
 
     // Check if the new item is the same as old one
     // (i.e. if clipboard contents have changed)

@@ -66,7 +66,7 @@
     }
   </style>
   <ul id="cbItems">
-    
+
   </ul>
 </template>
 
@@ -97,6 +97,7 @@
       ready() {
         // Add event listeners
         window.addEventListener('keydown', this._onWindowKeyUp);
+
         // Try to select the first item
         this._setSelection();
       }
@@ -136,7 +137,7 @@
             .map(pair => pair[1])
             .filter(item => {
               try {
-                // Create a rew regexp ot of search query
+                // Create a new regexp out of search query
                 const re = new RegExp(pattern, 'gi');
                 if (item.type === 'text' && item.data.text.match(re)) {
                   // Match found
@@ -176,11 +177,10 @@
 
       clearItems() {
         this._clipboardItems.clear();
-        this._setSelection();
-        const nodes = this.$.cbItems.querySelectorAll(`[data-hash]`);
-        nodes.forEach(node => {
+
+        for (const node of this.$.cbItems.querySelectorAll('[data-hash]')) {
           this.$.cbItems.removeChild(node);
-        });
+        }
       }
 
       _renderNewItem(item) {
@@ -189,9 +189,9 @@
 
         // Fisrt find duplicated and remove them, because the data has to change
         const duplicates = this.$.cbItems.querySelectorAll(`[data-hash="${item.hash}"]`);
-        duplicates.forEach(node => {
-          this.$.cbItems.removeChild(node);
-        });
+        for (const duplicateNode of duplicates) {
+          this.$.cbItems.removeChild(duplicateNode);
+        }
 
         // Insert at the top
         this.$.cbItems.insertBefore(domItem, this.$.cbItems.firstElementChild);
@@ -222,24 +222,24 @@
         // Show or hide results
         if (!items) {
           // Show all items
-          this._clipboardItems.forEach(item => {
+          for (const item of this._clipboardItems) {
             const node = this.$.cbItems.querySelector(`[data-hash="${item.hash}"]`);
             node.classList.remove('hidden');
-          });
+          }
+
           return;
         }
 
         // Get all the nodes, hide them...
-        const nodes = this.$.cbItems.querySelectorAll('.cb-item');
-        nodes.forEach(node => {
+        for (const node of this.$.cbItems.querySelectorAll('.cb-item')) {
           node.classList.add('hidden');
-        });
+        }
 
         // ...and then show only the ones needed
-        items.forEach(item => {
+        for (const item of items) {
           const node = this.$.cbItems.querySelector(`[data-hash="${item.hash}"]`);
           node.classList.remove('hidden');
-        });
+        }
 
         // Trigger a selection, to select the top most one
         this._setSelection();
