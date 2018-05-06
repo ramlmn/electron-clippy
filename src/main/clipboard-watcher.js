@@ -1,9 +1,8 @@
 'use strict';
 
-const {clipboard} = require('electron');
-const EventEmitter = require('events');
-const crypto = require('crypto');
-
+import {clipboard} from 'electron';
+import EventEmitter from 'events';
+import crypto from 'crypto';
 
 /**
  * A thing which tracks the system clipboard and calls a callback,
@@ -20,11 +19,9 @@ class ClipboardWatcher extends EventEmitter {
 
     // An object storing the recent clipboard item
     this._recentClipItem = {};
-    // this.clipboardItems = new Map();
 
     this._watchLoop = this._watchLoop.bind(this);
   }
-
 
   /**
    * Start listening for new items in clipboard
@@ -38,7 +35,6 @@ class ClipboardWatcher extends EventEmitter {
     // Start recursive call
     this._watchLoop();
   }
-
 
   /**
    * A recursive function which listens for changes in system clipboard
@@ -55,7 +51,6 @@ class ClipboardWatcher extends EventEmitter {
 
     setTimeout(this._watchLoop, 1000);
   }
-
 
   /**
    * The function that scrapes the clipboard, analyzes all the available types
@@ -81,7 +76,7 @@ class ClipboardWatcher extends EventEmitter {
         text: '',
         html: '',
         rtf: '',
-        image: '',
+        image: ''
       },
 
       // Data for image
@@ -90,12 +85,12 @@ class ClipboardWatcher extends EventEmitter {
       height: 0,
 
       // Data for text
-      length: 0,
+      length: 0
     };
 
     // Extract all the available formats of data on the clipboard
     for (const format of availableFormats) {
-      // html and rtf formats are also considered plain text
+      // HTML and RTF formats are also considered plain text
       if (format.startsWith('text/')) {
         newClipItem.type = 'text';
 
@@ -154,7 +149,6 @@ class ClipboardWatcher extends EventEmitter {
     this.emit('item', newClipItem);
   }
 
-
   /**
    * Generates a base64 thumbnail for the provided native image
    *
@@ -168,7 +162,7 @@ class ClipboardWatcher extends EventEmitter {
 
     const resizeOptions = {
       width: 300,
-      height: 300,
+      height: 300
     };
 
     if (imageDimensions.width > resizeOptions.width) {
@@ -186,7 +180,6 @@ class ClipboardWatcher extends EventEmitter {
     const thumb = nativeImageData.resize(resizeOptions);
     return thumb.toDataURL();
   }
-
 
   /**
    * Compares with the old item available and determines if it is a new item
@@ -214,7 +207,9 @@ class ClipboardWatcher extends EventEmitter {
     // Text is considered new if any of `text`, `html`, `rtf` parts change
     if (oldItem.type === 'image') {
       return (oldItem.data.image !== newItem.data.image);
-    } else if (oldItem.type === 'text') {
+    }
+
+    if (oldItem.type === 'text') {
       return (
         oldItem.data.text !== newItem.data.text ||
         oldItem.data.html !== newItem.data.html ||
@@ -224,5 +219,4 @@ class ClipboardWatcher extends EventEmitter {
   }
 }
 
-
-exports.ClipboardWatcher = ClipboardWatcher;
+export default ClipboardWatcher;

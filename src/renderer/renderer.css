@@ -1,0 +1,105 @@
+/* latin-ext */
+@font-face {
+  font-family: 'Noto Sans';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Noto Sans'), local('NotoSans'), url('./fonts/noto/regular/latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-024F, U+1E00-1EFF, U+20A0-20AB, U+20AD-20CF, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Noto Sans';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Noto Sans'), local('NotoSans'), url('./fonts/noto/regular/latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215;
+}
+
+
+
+/* latin-ext */
+@font-face {
+  font-family: 'Noto Sans';
+  font-style: normal;
+  font-weight: 700;
+  src: local('Noto Sans Bold'), local('NotoSans-Bold'), url('./fonts/noto/bold/latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-024F, U+1E00-1EFF, U+20A0-20AB, U+20AD-20CF, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Noto Sans';
+  font-style: normal;
+  font-weight: 700;
+  src: local('Noto Sans Bold'), local('NotoSans-Bold'), url('./fonts/noto/bold/latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215;
+}
+
+
+
+:root {
+  --color-primary-900: #212121;
+  --color-primary-800: #424242;
+  --color-primary-700: #616161;
+  --color-primary-600: #757575;
+  --color-primary-200: #EEEEEE;
+  --color-primary-100: #f5f5f5;
+  --color-primary-50: #fafafa;
+
+  --color-accented-700: #7B1FA2;
+  --color-accented-500: #9C27B0;
+  --color-accented-300: #BA68C8;
+  --color-accented-100: #E1BEE7;
+
+  --color-item-active-fg: #fff;
+  --color-item-active-bg: var(--color-accented-500);
+  --color-scrollbar: var(--color-accented-300);
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: rgba(0,0,0,0);
+}
+
+*::before, *::after {
+  -webkit-tap-highlight-color: rgba(0,0,0,0);
+  box-sizing: inherit;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: "Noto Sans", system-ui, sans-serif;
+  color: var(--color-primary-1);
+  font-size: 14px;
+  line-height: 1.5;
+  background: transparent;
+
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+}
+
+::-webkit-scrollbar {
+  height: 8px;
+  width: 3px;
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar:horizontal {
+  height: 3px;
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: 0;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-scrollbar);
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-corner {
+  background: 0;
+}

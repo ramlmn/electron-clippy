@@ -1,0 +1,14 @@
+clippy-item {
+  display: block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 2px;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+clippy-item.selected {
+  background-color: var(--color-item-active-bg, #212121);
+  color: var(--color-item-active-fg, #fff);
+}

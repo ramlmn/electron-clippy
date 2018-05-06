@@ -1,10 +1,12 @@
 'use strict';
 
-const url = require('url');
-const path = require('path');
-const autoLaunch = new (require('auto-launch'))({name: 'Clippy'});
-const {app, Menu, BrowserWindow, ipcMain, globalShortcut, Tray} = require('electron');
-const {ClipboardWatcher} = require('./clipboard-watcher.js');
+import {app, Menu, BrowserWindow, ipcMain, globalShortcut, Tray} from 'electron';
+import url from 'url';
+import path from 'path';
+import AutoLaunch from 'auto-launch';
+import ClipboardWatcher from './clipboard-watcher';
+
+const autoLaunch = new AutoLaunch({name: 'Clippy'});
 
 let mainWindow = null;
 let rendererChannel = null;
@@ -12,24 +14,26 @@ let tray = null;
 let accStat = null;
 let startupStat = null;
 
-const trayTemplate = [{
-    label: 'Clippy',
+const trayTemplate = [
+  {
+    label: 'Clippy'
   }, {
-    type: 'separator',
+    type: 'separator'
   }, {
     label: 'Show',
-    click: showWindow,
+    click: showWindow
   }, {
     label: 'Clear',
-    click: _ => {
+    click: () => {
       rendererChannel.send('clear-items');
-    },
+    }
   }, {
     label: 'Quit',
-    click: _ => {
+    click: () => {
       mainWindow.close();
-    },
-  }];
+    }
+  }
+];
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
@@ -50,20 +54,17 @@ app.on('ready', () => {
   rendererChannel = mainWindow.webContents;
 });
 
-
 // Settingup clipboard watcher
 const watcher = new ClipboardWatcher();
 watcher.on('item', data => {
-  rendererChannel.send('clipboard-item', data);
+  rendererChannel.send('new-item', data);
 });
-
 
 ipcMain.once('init', onInit);
 
 ipcMain.on('hide', hideWindow);
 
 ipcMain.on('settings', handleSettings);
-
 
 function onClosed() {
   // Dereference the window
@@ -101,7 +102,7 @@ function createMainWindow() {
     frame: false,
     transparent: true,
     title: 'Clippy',
-    alwaysOnTop: true,
+    alwaysOnTop: true
   });
 
   // Basic events for window
@@ -110,15 +111,16 @@ function createMainWindow() {
   win.on('blur', hideWindow);
 
   const urlToLoad = url.format({
-    pathname: path.join(__dirname, '../renderer/index.html'),
+    pathname: path.resolve(__dirname, '../renderer/index.html'),
     protocol: 'file:',
-    slashes: true,
+    slashes: true
   });
   win.loadURL(urlToLoad);
 
+  console.log(__dirname);
 
   // Settingup tray icon
-  tray = new Tray(path.join(__dirname, '../renderer/img/clip-32x32.png'));
+  tray = new Tray(path.resolve(__dirname, '../renderer/img/clip-32x32.png'));
 
   const trayContetxtMenu = Menu.buildFromTemplate(trayTemplate);
   tray.setContextMenu(trayContetxtMenu);
@@ -136,19 +138,15 @@ function addEventListeners() {
 }
 
 async function onInit() {
-  // Start watching clipboard
   watcher.startListening();
 
-  // Check startup status
   startupStat = await autoLaunch.isEnabled();
 
-  // Send stats to renderer
-  rendererChannel.send('stats', {accelerator: accStat, startup: startupStat});
+  rendererChannel.send('app-stats', {accelerator: accStat, startup: startupStat});
 }
 
 async function handleSettings(event, args) {
   if (args.startup !== startupStat) {
-    // Setting changed
     if (args.startup === true) {
       autoLaunch.enable();
     } else {
@@ -156,6 +154,6 @@ async function handleSettings(event, args) {
     }
 
     startupStat = await autoLaunch.isEnabled();
-    rendererChannel.send('stats', {startup: startupStat});
+    rendererChannel.send('app-stats', {startup: startupStat});
   }
 }
