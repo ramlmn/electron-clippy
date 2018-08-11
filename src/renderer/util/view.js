@@ -23,7 +23,12 @@
 
 const views = [];
 
+// For debugging
 window.views = views;
+
+const shouldHandle = view => {
+  return views[views.length - 1] === view;
+};
 
 const viewIn = (view = (Math.random() * 1e16).toString(36)) => {
   console.log('in:', view);
@@ -40,10 +45,6 @@ const viewOut = view => {
   }
 
   return null;
-};
-
-const shouldHandle = view => {
-  return views[views.length - 1] === view;
 };
 
 export {

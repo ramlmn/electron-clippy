@@ -183,8 +183,8 @@ class ClipboardWatcher extends EventEmitter {
    * Compares with the old item available and determines if it is a new item
    * or exactly same as the old one
    *
-   * @param {Object} newItem
-   * @returns {Boolean}
+   * @param {Object} newItem The possibly new item object to check for
+   * @returns {Boolean} Returns true if same otherwise false
    * @memberof ClipboardWatcher
    */
   _isNewItem(newItem) {

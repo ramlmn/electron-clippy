@@ -1,8 +1,8 @@
 import {clipboard, nativeImage} from 'electron';
-import {wire} from 'hyperhtml/esm';
-import {clamp} from '../../util';
 import {subscribe, dispatch} from 'global-dispatcher';
+import {wire} from 'hyperhtml/esm';
 import ClippyElement from '../clippy-element';
+import {clamp} from '../../util';
 import '../clippy-item';
 import './clippy-items.css';
 

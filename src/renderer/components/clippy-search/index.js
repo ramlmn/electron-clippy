@@ -1,5 +1,5 @@
-import ClippyElement from '../clippy-element';
 import {dispatch} from 'global-dispatcher';
+import ClippyElement from '../clippy-element';
 import {shouldHandle} from '../../util/view';
 import './clippy-search.css';
 

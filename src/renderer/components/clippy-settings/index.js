@@ -1,7 +1,7 @@
-import ClippyElement from '../clippy-element';
 import {subscribe, dispatch} from 'global-dispatcher';
-import './clippy-settings.css';
 import {viewIn, viewOut, shouldHandle} from '../../util/view';
+import ClippyElement from '../clippy-element';
+import './clippy-settings.css';
 
 class ClippySettings extends ClippyElement {
   constructor() {
@@ -39,7 +39,8 @@ class ClippySettings extends ClippyElement {
   }
 
   set view(v) {
-    return this._view = v;
+    this._view = v;
+    return this._view;
   }
 
   set hidden(value) {

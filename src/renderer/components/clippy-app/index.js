@@ -1,5 +1,5 @@
-import ClippyElement from '../clippy-element';
 import {dispatch} from 'global-dispatcher';
+import ClippyElement from '../clippy-element';
 import {viewIn, shouldHandle} from '../../util/view';
 import '../clippy-settings';
 import '../clippy-search';
@@ -20,7 +20,8 @@ class ClippyApp extends ClippyElement {
   }
 
   set view(v) {
-    return this._view = v;
+    this._view = v;
+    return this._view;
   }
 
   get view() {

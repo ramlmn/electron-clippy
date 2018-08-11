@@ -12,7 +12,7 @@
   "homepage": "https://github.com/ramlmn/electron-clippy#readme",
   "main": "build/main/main.js",
   "scripts": {
-    "lint": "eslint src",
+    "lint": "xo",
     "start": "electron .",
     "dev": "concurrently \"webpack --watch\" \"npm start\"",
     "build": "webpack && build"
