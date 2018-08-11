@@ -14,7 +14,8 @@
   "scripts": {
     "lint": "xo",
     "start": "electron .",
-    "dev": "concurrently \"webpack --watch\" \"npm start\"",
+    "watch": "webpack --watch",
+    "dev": "concurrently \"npm run watch\" \"npm run start\"",
     "build": "webpack && build"
   },
   "devDependencies": {

@@ -36,15 +36,15 @@ class ClippyApp extends ClippyElement {
         return;
       }
 
-      if (event.key === 'ArrowDown') {
+      if (event.code === 'ArrowDown') {
         dispatch('next-item');
-      } else if (event.key === 'ArrowUp') {
+      } else if (event.code === 'ArrowUp') {
         dispatch('previous-item');
-      } else if (event.key === 'Delete') {
+      } else if (event.code === 'Delete') {
         dispatch('delete-item');
-      } else if (event.key === 'Enter') {
+      } else if (event.code === 'Enter') {
         dispatch('select-item');
-      } else if (event.key === 'Escape') {
+      } else if (event.code === 'Escape') {
         dispatch('hide-window');
       }
     });
