@@ -1,10 +1,10 @@
-import {clipboard} from 'electron';
+import {clipboard, nativeImage} from 'electron';
 import {wire} from 'hyperhtml/esm';
 import {clamp} from '../../util';
-import {subscribe, dispatch} from '../../util/state';
+import {subscribe, dispatch} from 'global-dispatcher';
 import ClippyElement from '../clippy-element';
 import '../clippy-item';
-import './style.css';
+import './clippy-items.css';
 
 class ClippyItems extends ClippyElement {
   constructor() {
@@ -14,8 +14,6 @@ class ClippyItems extends ClippyElement {
     this._flattened = [];
     this._seleted = null;
     this.pattern = null;
-
-    console.log(this);
   }
 
   connectedCallback() {
@@ -26,9 +24,10 @@ class ClippyItems extends ClippyElement {
     subscribe('search-item', pattern => this.handleSearch(pattern));
 
     subscribe('next-item', () => this._selectNext());
+    subscribe('select-item', () => this._selectItem());
     subscribe('previous-item', () => this._selectPrevious());
 
-    subscribe('select-item', () => this._selectItem());
+    this.render();
   }
 
   handleNewItem(item) {
@@ -67,58 +66,72 @@ class ClippyItems extends ClippyElement {
     });
   }
 
-  _selectPrevious() {
+  _select(offset) {
     if (this._selected) {
       const cur = this._flattened.indexOf(this._selected);
-      const prev = clamp(cur - 1, 0, this._flattened.length - 1);
-      this._selected = this._flattened[prev];
+      const nxt = clamp(cur + offset, 0, this._flattened.length - 1);
+      this._selected = this._flattened[nxt];
+
+      if (cur === nxt) {
+        return;
+      }
     } else if (this._flattened.length > 0) {
       [this._selected] = this._flattened;
     }
 
     this.render();
+  }
+
+  _selectPrevious() {
+    this._select(-1);
   }
 
   _selectNext() {
-    if (this._selected) {
-      const cur = this._flattened.indexOf(this._selected);
-      const next = clamp(cur + 1, 0, this._flattened.length - 1);
-      this._selected = this._flattened[next];
-    } else if (this._flattened.length > 0) {
-      [this._selected] = this._flattened;
-    }
-
-    this.render();
+    this._select(1);
   }
 
   _selectItem() {
-    if (this._selected) {
-      clipboard.write({...this._selected.data});
+    const selected = this._selected;
+
+    if (selected) {
+      if (selected.type === 'image') {
+        clipboard.write({
+          image: nativeImage.createFromDataURL(selected.data.image),
+          ...selected.data
+        });
+      } else {
+        clipboard.write({
+          ...selected.data
+        });
+      }
     }
   }
 
   _filterItems(pattern) {
     if (pattern) {
+      // @TODO: Maybe use a better search algorithm
       try {
         const re = new RegExp(pattern, 'gim');
         const flattened = this._flattened.filter(item => {
           return item.type === 'text' && item.data.text.match(re);
         });
 
+        [this._selected] = flattened;
+
         return [...flattened];
-      } catch (e) {}
+      } catch (e) {
+        [this._selected] = this._flattened;
+      }
     }
 
     return [...this._flattened];
   }
 
   handleSearch(pattern) {
-    pattern = pattern.trim();
-
     if (pattern.length === 0) {
-      this._pattern = pattern;
-    } else {
       this._pattern = null;
+    } else {
+      this._pattern = pattern;
     }
 
     this.render();
@@ -126,20 +139,35 @@ class ClippyItems extends ClippyElement {
 
   render() {
     const itemsToRender = this._filterItems(this._pattern);
-
     dispatch('render-item', this._selected);
 
-    this.html`
-      ${itemsToRender.map(item => wire(this, `:clippy-item-${item.hash}`)`
-        <clippy-item
-          data-hash="${item.hash}"
-          data-type="${item.type}"
-          class="${(item.hash === this._selected.hash) ? 'selected' : ''}"
-        >
-          ${item.type === 'image' ? `Image: ${item.width}x${item.height}` : item.data.text.trim().substr(0, 100)}
-        </clippy-item>
-      `)}
-    `;
+    if (itemsToRender.length > 0) {
+      this.html`
+        ${itemsToRender.map(item => wire(this, `:clippy-item-${item.hash}`)`
+          <clippy-item
+            data-hash="${item.hash}"
+            data-type="${item.type}"
+            class="${(item.hash === this._selected.hash) ? 'selected' : ''}"
+          >
+            ${item.type === 'image' ? `Image: ${item.width}x${item.height}` : item.data.text.trim().substr(0, 100)}
+          </clippy-item>
+        `)}
+      `;
+
+      requestAnimationFrame(() => {
+        const currentItem = this.querySelector('clippy-item.selected');
+        if (currentItem) {
+          this.scrollTop = currentItem.offsetTop - this.offsetHeight;
+        }
+      });
+    } else {
+      this.html`
+        <div class="not-found">
+          <p>¯\\_(ツ)_/¯</p>
+          <p>We couldn't find anything</p>
+        </div>
+      `;
+    }
   }
 }
 

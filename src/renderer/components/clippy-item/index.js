@@ -1,6 +1,5 @@
 import ClippyElement from '../clippy-element';
-import {dispatch} from '../../util/state';
-import './style.css';
+import './clippy-item.css';
 
 class ClippyItem extends ClippyElement {
   connectedCallback() {

@@ -18,10 +18,26 @@ clippy-app.is-linux {
   border-radius: 0;
 }
 
+clippy-app .clippy-toolbar {
+  display: grid;
+  align-items: center;
+  grid-template-columns: 1fr auto;
+  grid-gap: 0.5rem;
+  padding: 0.5rem;
+}
+
+clippy-app .clippy-toolbar clippy-search {
+  flex: 1;
+}
+
 clippy-app .clippy-content {
   display: grid;
   grid-template: 1fr / repeat(2, calc(50% - 0.25rem));
   grid-gap: 0.5rem;
   flex: 1;
-  padding: 0.5rem 0;
+  padding: 0.5rem;
+}
+
+clippy-app .clippy-content > * {
+  min-height: 0;
 }

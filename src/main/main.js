@@ -1,5 +1,3 @@
-'use strict';
-
 import {app, Menu, BrowserWindow, ipcMain, globalShortcut, Tray} from 'electron';
 import url from 'url';
 import path from 'path';
@@ -91,8 +89,8 @@ function hideWindow(event) {
 
 function createMainWindow() {
   const win = new BrowserWindow({
-    width: 700,
-    height: 450,
+    width: 800,
+    height: 500,
     show: false,
     center: true,
     resizable: false,
@@ -116,8 +114,6 @@ function createMainWindow() {
     slashes: true
   });
   win.loadURL(urlToLoad);
-
-  console.log(__dirname);
 
   // Settingup tray icon
   tray = new Tray(path.resolve(__dirname, '../renderer/img/clip-32x32.png'));

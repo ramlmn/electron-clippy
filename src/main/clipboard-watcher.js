@@ -1,5 +1,3 @@
-'use strict';
-
 import {clipboard} from 'electron';
 import EventEmitter from 'events';
 import crypto from 'crypto';

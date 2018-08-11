@@ -1,6 +1,6 @@
 import {ipcRenderer as ipc} from 'electron';
 import {bind} from 'hyperhtml/esm';
-import {subscribe, dispatch} from './util/state';
+import {subscribe, dispatch} from 'global-dispatcher';
 import './components/clippy-app';
 import './renderer.css';
 
@@ -17,13 +17,8 @@ ipc.on('app-stats', (event, ...args) => {
   dispatch('app-stats', ...args);
 });
 
-subscribe('settings-change', event => ipc.send('settings-change', event.detail));
-
-window.addEventListener('keydown', event => {
-  if (event.keyCode === 27 && !event.defaultPrevented) {
-    ipc.send('hide');
-  }
-});
+subscribe('settings-change', settings => ipc.send('settings-change', settings));
+subscribe('hide-window', () => ipc.send('hide'));
 
 window.addEventListener('load', () => ipc.send('init'));
 

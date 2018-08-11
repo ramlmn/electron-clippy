@@ -34,6 +34,7 @@ clippy-previewer .preview .preview-image {
 clippy-previewer .preview-meta {
   font-size: 0.85rem;
   margin-top: 0.5rem;
+  user-select: none;
 }
 
 clippy-previewer .preview-meta p {

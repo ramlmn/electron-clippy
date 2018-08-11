@@ -1,8 +1,12 @@
 import ClippyElement from '../clippy-element';
-import {dispatch} from '../../util/state';
+import {dispatch} from 'global-dispatcher';
+import {viewIn, shouldHandle} from '../../util/view';
+import '../clippy-settings';
+import '../clippy-search';
+import '../clippy-button';
 import '../clippy-items';
 import '../clippy-previewer';
-import './style.css';
+import './clippy-app.css';
 
 class ClippyApp extends ClippyElement {
   constructor() {
@@ -12,8 +16,24 @@ class ClippyApp extends ClippyElement {
       this.classList.add('is-linux');
     }
 
+    this.render();
+  }
+
+  set view(v) {
+    return this._view = v;
+  }
+
+  get view() {
+    return this._view;
+  }
+
+  connectedCallback() {
+    this._view = viewIn();
+
     document.addEventListener('keydown', event => {
-      console.log(event);
+      if (!shouldHandle(this.view)) {
+        return;
+      }
 
       if (event.key === 'ArrowDown') {
         dispatch('next-item');
@@ -23,15 +43,21 @@ class ClippyApp extends ClippyElement {
         dispatch('delete-item');
       } else if (event.key === 'Enter') {
         dispatch('select-item');
+      } else if (event.key === 'Escape') {
+        dispatch('hide-window');
       }
     });
-
-    this.render();
   }
 
   render() {
     this.html`
-      <clippy-toolbar></clippy-toolbar>
+      <clippy-settings hidden></clippy-settings>
+      <div class="clippy-toolbar">
+        <clippy-search view="${this._view}"></clippy-search>
+        <clippy-button
+          icon="settings" label="Show app settings"
+          onclick="${() => dispatch('show-settings')}"></clippy-button>
+      </div>
       <div class="clippy-content">
         <clippy-items></clippy-items>
         <clippy-previewer></clippy-previewer>

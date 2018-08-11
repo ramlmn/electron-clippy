@@ -6,6 +6,10 @@ class ClippyElement extends HTMLElement {
     this.html = bind(this);
   }
 
+  connectedCallback() {
+    this.render();
+  }
+
   render() {}
 }
 

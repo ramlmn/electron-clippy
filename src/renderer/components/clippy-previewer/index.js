@@ -1,7 +1,7 @@
 import {wire} from 'hyperhtml/esm';
-import {subscribe} from '../../util/state';
+import {subscribe} from 'global-dispatcher';
 import ClippyElement from '../clippy-element';
-import './style.css';
+import './clippy-previewer.css';
 
 class ClippyPreviewer extends ClippyElement {
   constructor() {
