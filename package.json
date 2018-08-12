@@ -16,10 +16,12 @@
     "start": "electron .",
     "watch": "webpack --watch",
     "dev": "concurrently \"npm run watch\" \"npm run start\"",
-    "build": "webpack && build"
+    "build": "cross-env NODE_ENV=production webpack && build"
   },
   "devDependencies": {
+    "clean-webpack-plugin": "^0.1.19",
     "concurrently": "^3.5.1",
+    "cross-env": "^5.2.0",
     "css-loader": "^1.0.0",
     "cssnano": "^4.0.5",
     "electron": "^2.0.0",

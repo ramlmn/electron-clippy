@@ -1,5 +1,3 @@
-'use strict';
-
 import {ipcRenderer as ipc} from 'electron';
 import {bind} from 'hyperhtml/esm';
 import {subscribe, dispatch} from 'global-dispatcher';
@@ -8,7 +6,6 @@ import './renderer.css';
 
 // @TODO: relaunch if necessary on reloads
 ipc.on('new-item', (event, item) => {
-  console.log(item);
   dispatch('new-item', item);
 });
 

@@ -1,6 +1,6 @@
 import ClippyElement from '../clippy-element';
-import './clippy-switch.css';
 import {shouldHandle} from '../../util/view';
+import './clippy-switch.css';
 
 class ClippySwitch extends ClippyElement {
   connectedCallback() {

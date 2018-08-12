@@ -1,9 +1,17 @@
 const path = require('path');
+const CleanWebpackPlugin = require('clean-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 const sourcePath = path.resolve(__dirname, 'src');
 const buildPath = path.resolve(__dirname, 'build');
+
+const IS_PROD = process.env.NODE_ENV === 'production';
+
+const pathsToClean = [
+  path.resolve(buildPath, 'main'),
+  path.resolve(buildPath, 'renderer')
+];
 
 const commonConfig = {
   output: {
@@ -16,20 +24,24 @@ const commonConfig = {
   node: false,
 
   devtool: 'sourcemap',
-  mode: 'production'
+  mode: IS_PROD ? 'production' : 'development'
 };
+
+if (!IS_PROD) {
+  commonConfig.devtool = 'sourcemap';
+}
 
 module.exports = [
   {
     target: 'electron-main',
     entry: {
-      'main/main': path.resolve(sourcePath, 'main/main')
+      'main/main': path.resolve(sourcePath, 'main/main.js')
     },
     ...commonConfig
   }, {
     target: 'electron-renderer',
     entry: {
-      'renderer/renderer': path.resolve(sourcePath, 'renderer/renderer')
+      'renderer/renderer': path.resolve(sourcePath, 'renderer/renderer.js')
     },
 
     module: {
@@ -46,21 +58,14 @@ module.exports = [
               }
             }
           ]
-        },
-        {
-          test: /\.woff2/,
-          use: [{
-            loader: 'file-loader',
-            options: {
-              name: 'fonts/[name]-[hash].[ext]',
-              outputPath: 'renderer'
-            }
-          }]
         }
       ]
     },
 
     plugins: [
+      new CleanWebpackPlugin(pathsToClean, {
+        verbose: true
+      }),
       new MiniCssExtractPlugin({
         filename: '[name].css',
         chunkFilename: '[id].css'
