@@ -115,7 +115,7 @@ function createMainWindow() {
   });
   win.loadURL(urlToLoad);
 
-  // Settingup tray icon
+  // Setting up tray icon
   tray = new Tray(path.resolve(__dirname, '../renderer/img/clip-32x32.png'));
 
   const trayContetxtMenu = Menu.buildFromTemplate(trayTemplate);

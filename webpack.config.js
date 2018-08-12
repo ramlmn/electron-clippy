@@ -2,6 +2,7 @@ const path = require('path');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 const sourcePath = path.resolve(__dirname, 'src');
 const buildPath = path.resolve(__dirname, 'build');
@@ -23,13 +24,9 @@ const commonConfig = {
   // 'false' disables mocking node globals
   node: false,
 
-  devtool: 'sourcemap',
+  devtool: IS_PROD ? false : 'source-map',
   mode: IS_PROD ? 'production' : 'development'
 };
-
-if (!IS_PROD) {
-  commonConfig.devtool = 'sourcemap';
-}
 
 module.exports = [
   {
@@ -53,8 +50,8 @@ module.exports = [
             {
               loader: 'css-loader',
               options: {
-                minimize: true,
-                sourcemap: true
+                minimize: IS_PROD,
+                sourcemap: !IS_PROD
               }
             }
           ]
@@ -73,7 +70,18 @@ module.exports = [
       new HtmlWebpackPlugin({
         template: path.resolve(sourcePath, 'renderer/index.html'),
         filename: path.resolve(buildPath, 'renderer/index.html')
-      })
+      }),
+      new CopyWebpackPlugin([
+        {
+          from: path.resolve(sourcePath, 'renderer/img/*.png'),
+          to: path.resolve(buildPath, 'renderer/img/'),
+          flatten: true,
+          transform(content) {
+            // TODO: Maybe optimize images here
+            return content;
+          }
+        }
+      ])
     ],
     ...commonConfig
   }
