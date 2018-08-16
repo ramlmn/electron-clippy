@@ -151,5 +151,5 @@ app.on('ready', () => {
 
 ipcMain.once(EVENT.APP_INIT, onAppInit);
 
-ipcMain.on('hide', hideWindow);
+ipcMain.on(EVENT.APP_HIDE, hideWindow);
 ipcMain.on(EVENT.SETTINGS_CHANGE, handleSettings);

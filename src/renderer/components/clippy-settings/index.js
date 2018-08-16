@@ -13,7 +13,7 @@ class ClippySettings extends ClippyElement {
   }
 
   connectedCallback() {
-    subscribe(EVENT.SHOW_SETTINGS, () => this.show());
+    subscribe(EVENT.SETTINGS_SHOW, () => this.show());
     subscribe(EVENT.SETTINGS_HIDE, () => this.hide());
 
     if (this.hasAttribute('hidden')) {

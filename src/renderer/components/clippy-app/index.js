@@ -58,7 +58,7 @@ class ClippyApp extends ClippyElement {
         <clippy-search view="${this._view}"></clippy-search>
         <clippy-button
           icon="settings" label="Show app settings"
-          onclick="${() => dispatch('show-settings')}"></clippy-button>
+          onclick="${() => dispatch(EVENT.SETTINGS_SHOW)}"></clippy-button>
       </div>
       <div class="clippy-content">
         <clippy-items></clippy-items>

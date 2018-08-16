@@ -19,6 +19,10 @@
     "dev": "concurrently \"npm run watch\" \"npm run start\"",
     "build": "cross-env NODE_ENV=production webpack && build"
   },
+  "dependencies": {
+    "auto-launch": "^5.0.5",
+    "hyperhtml": "^2.13.0"
+  },
   "devDependencies": {
     "clean-webpack-plugin": "^0.1.19",
     "concurrently": "^3.6.1",
@@ -67,10 +71,6 @@
       "perMachine": true,
       "deleteAppDataOnUninstall": true
     }
-  },
-  "dependencies": {
-    "auto-launch": "^5.0.5",
-    "hyperhtml": "^2.13.0"
   },
   "xo": {
     "space": true,
