@@ -19,7 +19,7 @@ clippy-previewer .preview .preview-image {
 clippy-previewer .preview .preview-text {
   overflow: auto;
   white-space: pre;
-  font-family: Consolas, 'SFMono-Regular', Menlo, Monaco, 'Droid Sans Mono', 'Source Code Pro',
+  font-family: Consolas, SFMono-Regular, Menlo, Monaco, 'Droid Sans Mono', 'Source Code Pro',
     'DejaVu Sans Mono', 'Ubuntu Mono', Courier, monospace;
   line-height: 1.25;
   color: var(--color-primary-800);

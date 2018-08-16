@@ -21,7 +21,6 @@ class ClippyButton extends ClippyElement {
     });
 
     this.addEventListener('keyup', event => {
-      console.log(event);
       if (event.code === 'Space' || event.code === 'Enter') {
         this._released();
         this.dispatchEvent(new CustomEvent('click', {

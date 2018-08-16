@@ -2,7 +2,6 @@ clippy-item {
   display: block;
   padding: 0.25rem 0.75rem;
   border-radius: 2px;
-
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

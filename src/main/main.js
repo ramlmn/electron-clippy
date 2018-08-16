@@ -2,6 +2,7 @@ import {app, Menu, BrowserWindow, ipcMain, globalShortcut, Tray} from 'electron'
 import url from 'url';
 import path from 'path';
 import AutoLaunch from 'auto-launch';
+import {EVENT} from '../constants';
 import ClipboardWatcher from './clipboard-watcher';
 
 const autoLaunch = new AutoLaunch({name: 'Clippy'});
@@ -24,7 +25,7 @@ const trayTemplate = [
     label: 'Clear',
     click: () => {
       if (rendererChannel) {
-        rendererChannel.send('clear-items');
+        rendererChannel.send(EVENT.ITEM_CLEAR);
       }
     }
   }, {
@@ -103,12 +104,17 @@ function createMainWindow() {
   return win;
 }
 
+const watcher = new ClipboardWatcher();
+watcher.on('item', data => {
+  rendererChannel.send(EVENT.ITEM_NEW, data);
+});
+
 async function onAppInit() {
   watcher.startListening();
 
   startupStat = await autoLaunch.isEnabled();
 
-  rendererChannel.send('app-stats', { accelerator: accStat, startup: startupStat });
+  rendererChannel.send(EVENT.APP_STATS, {accelerator: accStat, startup: startupStat});
 }
 
 async function handleSettings(event, args) {
@@ -120,7 +126,7 @@ async function handleSettings(event, args) {
     }
 
     startupStat = await autoLaunch.isEnabled();
-    rendererChannel.send('app-stats', {startup: startupStat});
+    rendererChannel.send(EVENT.APP_STATS, {startup: startupStat});
   }
 }
 
@@ -143,12 +149,7 @@ app.on('ready', () => {
   rendererChannel = mainWindow.webContents;
 });
 
-const watcher = new ClipboardWatcher();
-watcher.on('item', data => {
-  rendererChannel.send('new-item', data);
-});
-
-ipcMain.once('init', onAppInit);
+ipcMain.once(EVENT.APP_INIT, onAppInit);
 
 ipcMain.on('hide', hideWindow);
-ipcMain.on('settings', handleSettings);
+ipcMain.on(EVENT.SETTINGS_CHANGE, handleSettings);

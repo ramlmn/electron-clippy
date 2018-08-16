@@ -12,7 +12,8 @@
   "homepage": "https://github.com/ramlmn/electron-clippy#readme",
   "main": "build/main/main.js",
   "scripts": {
-    "lint": "xo",
+    "lint": "xo && stylelint src/**/*.css",
+    "lint-fix": "xo --fix; stylelint --fix src/**/*.css",
     "start": "electron .",
     "watch": "webpack --watch",
     "dev": "concurrently \"npm run watch\" \"npm run start\"",
@@ -31,6 +32,8 @@
     "global-dispatcher": "0.0.1",
     "html-webpack-plugin": "^3.2.0",
     "mini-css-extract-plugin": "^0.4.1",
+    "stylelint": "^9.4.0",
+    "stylelint-config-xo-space": "^0.9.0",
     "webpack": "^4.16.5",
     "webpack-cli": "^3.1.0",
     "xo": "^0.22.0"
@@ -94,5 +97,13 @@
     "ignore": [
       "app"
     ]
+  },
+  "stylelint": {
+    "extends": "stylelint-config-xo-space",
+    "rules": {
+      "declaration-colon-newline-after": null,
+      "selector-list-comma-newline-after": null,
+      "selector-type-no-unknown": null
+    }
   }
 }

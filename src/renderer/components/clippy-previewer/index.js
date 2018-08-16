@@ -1,13 +1,14 @@
 import {wire} from 'hyperhtml/esm';
 import {subscribe} from 'global-dispatcher';
 import ClippyElement from '../clippy-element';
+import {EVENT} from '../../../constants';
 import './clippy-previewer.css';
 
 class ClippyPreviewer extends ClippyElement {
   constructor() {
     super();
 
-    subscribe('render-item', item => this.render(item));
+    subscribe(EVENT.ITEM_RENDER, item => this.render(item));
   }
 
   connectedCallback() {

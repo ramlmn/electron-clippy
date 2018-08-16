@@ -4,8 +4,6 @@ import './clippy-switch.css';
 
 class ClippySwitch extends ClippyElement {
   connectedCallback() {
-    // this.setAttribute('tabindex', 0);
-
     if (this.getAttribute('selected') === 'true') {
       this.checked = true;
     } else {
@@ -13,8 +11,6 @@ class ClippySwitch extends ClippyElement {
     }
 
     this.addEventListener('keydown', event => {
-      console.log(this.getAttribute('parentView'));
-
       if (!shouldHandle(this.getAttribute('parentView'))) {
         return;
       }
@@ -34,8 +30,7 @@ class ClippySwitch extends ClippyElement {
       <label class="switch-container" tabindex="0">
         <input
           type="checkbox" tabindex="-1"
-          checked="${this.checked}"
-          onchange="${() => this.dispatchEvent(new CustomEvent('change'))}">
+          checked="${this.checked}">
         <span class="switch">
           <span class="track"></span>
           <span class="handle"></span>
@@ -46,8 +41,6 @@ class ClippySwitch extends ClippyElement {
   }
 
   attributeChangedCallback(name, oldVal, newVal) {
-    console.log(name, oldVal, newVal);
-
     if (name === 'selected') {
       if (newVal === 'true') {
         this.checked = true;

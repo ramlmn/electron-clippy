@@ -31,15 +31,11 @@ const shouldHandle = view => {
 };
 
 const viewIn = (view = (Math.random() * 1e16).toString(36)) => {
-  console.log('in:', view);
-
   views.push(view);
   return view;
 };
 
 const viewOut = view => {
-  console.log('out:', view);
-
   if (shouldHandle(view)) {
     return views.pop();
   }

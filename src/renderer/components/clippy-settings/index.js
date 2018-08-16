@@ -1,6 +1,7 @@
 import {subscribe, dispatch} from 'global-dispatcher';
 import {viewIn, viewOut, shouldHandle} from '../../util/view';
 import ClippyElement from '../clippy-element';
+import {EVENT} from '../../../constants';
 import '../clippy-switch';
 import './clippy-settings.css';
 
@@ -12,8 +13,8 @@ class ClippySettings extends ClippyElement {
   }
 
   connectedCallback() {
-    subscribe('show-settings', () => this.show());
-    subscribe('hide-settings', () => this.hide());
+    subscribe(EVENT.SHOW_SETTINGS, () => this.show());
+    subscribe(EVENT.SETTINGS_HIDE, () => this.hide());
 
     if (this.hasAttribute('hidden')) {
       this.hide();
@@ -81,7 +82,7 @@ class ClippySettings extends ClippyElement {
     requestAnimationFrame(() => {
       this._hidden = true;
       this.classList.remove('shown');
-      this.setAttribute('hidden', '');
+      this.setAttribute('hidden', true);
       this.setAttribute('aria-hidden', true);
     });
   }
@@ -104,15 +105,17 @@ class ClippySettings extends ClippyElement {
     }
   }
 
-  _onSettingChange(prop, value) {
-    this._settings[prop] = value;
+  _onSettingChange(setting, value) {
+    this._settings[setting] = value;
+
+    dispatch(EVENT.SETTINGS_CHANGE, this._settings);
 
     this.render();
   }
 
   render() {
     this.html`
-      <div class="scrim" onclick="${() => dispatch('hide-settings')}"></div>
+      <div class="scrim" onclick="${() => dispatch(EVENT.SETTINGS_HIDE)}"></div>
       <div class="content">
         <h2>Settings</h2>
         <clippy-switch

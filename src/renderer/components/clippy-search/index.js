@@ -1,6 +1,7 @@
 import {dispatch} from 'global-dispatcher';
 import ClippyElement from '../clippy-element';
 import {shouldHandle} from '../../util/view';
+import {EVENT} from '../../../constants';
 import './clippy-search.css';
 
 class ClippySearch extends ClippyElement {
@@ -35,7 +36,7 @@ class ClippySearch extends ClippyElement {
 
   onChange(event) {
     this._value = event.target.value;
-    dispatch('search-item', this._value);
+    dispatch(EVENT.ITEM_SEARCH, this._value);
   }
 
   static get observedAttributes() {

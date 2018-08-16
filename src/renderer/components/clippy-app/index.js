@@ -1,6 +1,7 @@
 import {dispatch} from 'global-dispatcher';
 import ClippyElement from '../clippy-element';
 import {viewIn, shouldHandle} from '../../util/view';
+import {EVENT} from '../../../constants';
 import '../clippy-settings';
 import '../clippy-search';
 import '../clippy-button';
@@ -37,15 +38,15 @@ class ClippyApp extends ClippyElement {
       }
 
       if (event.code === 'ArrowDown') {
-        dispatch('next-item');
+        dispatch(EVENT.ITEM_NEXT);
       } else if (event.code === 'ArrowUp') {
-        dispatch('previous-item');
+        dispatch(EVENT.ITEM_PREVIOUS);
       } else if (event.code === 'Delete') {
-        dispatch('delete-item');
+        dispatch(EVENT.ITEM_DELETE);
       } else if (event.code === 'Enter') {
-        dispatch('select-item');
+        dispatch(EVENT.ITEM_SELECT);
       } else if (event.code === 'Escape') {
-        dispatch('hide-window');
+        dispatch(EVENT.APP_HIDE);
       }
     });
   }

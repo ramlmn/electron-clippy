@@ -3,6 +3,7 @@ import {subscribe, dispatch} from 'global-dispatcher';
 import {wire} from 'hyperhtml/esm';
 import ClippyElement from '../clippy-element';
 import {clamp} from '../../util';
+import {EVENT} from '../../../constants';
 import '../clippy-item';
 import './clippy-items.css';
 
@@ -19,13 +20,13 @@ class ClippyItems extends ClippyElement {
   connectedCallback() {
     this.role = 'list';
 
-    subscribe('new-item', item => this.handleNewItem(item));
-    subscribe('delete-item', hash => this.handleDeleteItem(hash));
-    subscribe('search-item', pattern => this.handleSearch(pattern));
+    subscribe(EVENT.ITEM_NEW, item => this.handleNewItem(item));
+    subscribe(EVENT.ITEM_DELETE, hash => this.handleDeleteItem(hash));
+    subscribe(EVENT.ITEM_SEARCH, pattern => this.handleSearch(pattern));
 
-    subscribe('next-item', () => this._selectNext());
-    subscribe('select-item', () => this._selectItem());
-    subscribe('previous-item', () => this._selectPrevious());
+    subscribe(EVENT.ITEM_NEXT, () => this._selectNext());
+    subscribe(EVENT.ITEM_SELECT, () => this._selectItem());
+    subscribe(EVENT.ITEM_PREVIOUS, () => this._selectPrevious());
 
     this.render();
   }
@@ -139,7 +140,7 @@ class ClippyItems extends ClippyElement {
 
   render() {
     const itemsToRender = this._filterItems(this._pattern);
-    dispatch('render-item', this._selected);
+    dispatch(EVENT.ITEM_RENDER, this._selected);
 
     if (itemsToRender.length > 0) {
       this.html`
