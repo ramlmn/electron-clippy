@@ -19,58 +19,33 @@ const trayTemplate = [
     type: 'separator'
   }, {
     label: 'Show',
-    click: showWindow
+    click: () => showWindow()
   }, {
     label: 'Clear',
     click: () => {
-      rendererChannel.send('clear-items');
+      if (rendererChannel) {
+        rendererChannel.send('clear-items');
+      }
     }
   }, {
     label: 'Quit',
     click: () => {
-      mainWindow.close();
+      if (mainWindow) {
+        mainWindow.close();
+      }
     }
   }
 ];
 
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit();
-  }
-});
+function registerGlobalShortcut() {
+  return globalShortcut.register('CommandOrControl+Shift+V', showWindow);
+}
 
-app.on('activate', () => {
-  if (!mainWindow) {
-    mainWindow = createMainWindow();
-    rendererChannel = mainWindow.webContents;
-  }
-});
-
-app.on('ready', () => {
-  mainWindow = createMainWindow();
-  accStat = addEventListeners();
-  rendererChannel = mainWindow.webContents;
-});
-
-// Settingup clipboard watcher
-const watcher = new ClipboardWatcher();
-watcher.on('item', data => {
-  rendererChannel.send('new-item', data);
-});
-
-ipcMain.once('init', onInit);
-
-ipcMain.on('hide', hideWindow);
-
-ipcMain.on('settings', handleSettings);
-
-function onClosed() {
-  // Dereference the window
+function onWindowClosed() {
   mainWindow = null;
 }
 
 function showWindow(event) {
-  // Show the window
   mainWindow.show();
 
   if (event) {
@@ -104,7 +79,7 @@ function createMainWindow() {
   });
 
   // Basic events for window
-  win.on('closed', onClosed);
+  win.on('closed', onWindowClosed);
   win.on('minimize', hideWindow);
   win.on('blur', hideWindow);
 
@@ -115,11 +90,10 @@ function createMainWindow() {
   });
   win.loadURL(urlToLoad);
 
-  // Setting up tray icon
-  tray = new Tray(path.resolve(__dirname, '../renderer/img/clip-32x32.png'));
+  tray = new Tray(path.resolve(__dirname, '../renderer/img/clippy-32.png'));
 
-  const trayContetxtMenu = Menu.buildFromTemplate(trayTemplate);
-  tray.setContextMenu(trayContetxtMenu);
+  const trayContextMenu = Menu.buildFromTemplate(trayTemplate);
+  tray.setContextMenu(trayContextMenu);
 
   tray.setToolTip('Clippy');
   tray.setTitle('Clippy');
@@ -129,16 +103,12 @@ function createMainWindow() {
   return win;
 }
 
-function addEventListeners() {
-  return globalShortcut.register('CommandOrControl+Shift+V', showWindow);
-}
-
-async function onInit() {
+async function onAppInit() {
   watcher.startListening();
 
   startupStat = await autoLaunch.isEnabled();
 
-  rendererChannel.send('app-stats', {accelerator: accStat, startup: startupStat});
+  rendererChannel.send('app-stats', { accelerator: accStat, startup: startupStat });
 }
 
 async function handleSettings(event, args) {
@@ -153,3 +123,32 @@ async function handleSettings(event, args) {
     rendererChannel.send('app-stats', {startup: startupStat});
   }
 }
+
+app.on('window-all-closed', () => {
+  if (process.platform !== 'darwin') {
+    app.quit();
+  }
+});
+
+app.on('activate', () => {
+  if (!mainWindow) {
+    mainWindow = createMainWindow();
+    rendererChannel = mainWindow.webContents;
+  }
+});
+
+app.on('ready', () => {
+  mainWindow = createMainWindow();
+  accStat = registerGlobalShortcut();
+  rendererChannel = mainWindow.webContents;
+});
+
+const watcher = new ClipboardWatcher();
+watcher.on('item', data => {
+  rendererChannel.send('new-item', data);
+});
+
+ipcMain.once('init', onAppInit);
+
+ipcMain.on('hide', hideWindow);
+ipcMain.on('settings', handleSettings);
