@@ -16,7 +16,7 @@ class ClippySettings extends ClippyElement {
     subscribe(EVENT.SETTINGS_SHOW, () => this.show());
     subscribe(EVENT.SETTINGS_HIDE, () => this.hide());
 
-    if (this.hasAttribute('hidden')) {
+    if (this.hasAttribute('visible')) {
       this.hide();
     } else {
       this.show();
@@ -27,7 +27,7 @@ class ClippySettings extends ClippyElement {
         return;
       }
 
-      if (event.code === 'Escape' && !this._hidden) {
+      if (event.code === 'Escape' && !this._visible) {
         this.hide();
         event.preventDefault();
       }
@@ -45,7 +45,7 @@ class ClippySettings extends ClippyElement {
     return this._view;
   }
 
-  set hidden(value) {
+  set visible(value) {
     if (value === true) {
       this.hide();
     } else {
@@ -53,42 +53,42 @@ class ClippySettings extends ClippyElement {
     }
   }
 
-  get hidden() {
-    return this._hidden;
+  get visible() {
+    return this._visible;
   }
 
   show() {
-    if (!this._hidden) {
+    if (!this._visible) {
       return;
     }
 
     this.view = viewIn();
 
     requestAnimationFrame(() => {
-      this._hidden = false;
+      this._visible = false;
       this.classList.add('shown');
-      this.removeAttribute('hidden');
+      this.removeAttribute('visible');
       this.setAttribute('aria-hidden', false);
     });
   }
 
   hide() {
-    if (this._hidden) {
+    if (this._visible) {
       return;
     }
 
     viewOut(this.view);
 
     requestAnimationFrame(() => {
-      this._hidden = true;
+      this._visible = true;
       this.classList.remove('shown');
-      this.setAttribute('hidden', true);
+      this.setAttribute('visible', true);
       this.setAttribute('aria-hidden', true);
     });
   }
 
   static get observedAttributes() {
-    return ['hidden'];
+    return ['visible'];
   }
 
   attributeChangedCallback(name, oldVal, newVal) {
@@ -96,8 +96,8 @@ class ClippySettings extends ClippyElement {
       return;
     }
 
-    if (name === 'hidden') {
-      if (this.hasAttribute('hidden')) {
+    if (name === 'visible') {
+      if (this.hasAttribute('visible')) {
         this.hide();
       } else {
         this.show();

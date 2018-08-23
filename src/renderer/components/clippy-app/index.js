@@ -53,7 +53,7 @@ class ClippyApp extends ClippyElement {
 
   render() {
     this.html`
-      <clippy-settings hidden></clippy-settings>
+      <clippy-settings></clippy-settings>
       <div class="clippy-toolbar">
         <clippy-search view="${this._view}"></clippy-search>
         <clippy-button

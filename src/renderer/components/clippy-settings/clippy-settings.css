@@ -20,12 +20,12 @@ clippy-settings .scrim {
   height: 100%;
   background-color: rgba(0, 0, 0, 0.5);
   opacity: 0;
-  transition: opacity 0.2s ease;
+  transition: opcity 0.2s cubic-bezier(0.4, 0, 1, 1);
 }
 
 clippy-settings.shown .scrim {
-  pointer-events: initial;
   opacity: 1;
+  transition: opacity 0.2s cubic-bezier(0, 0, 0.2, 1);
 }
 
 clippy-settings .content {
@@ -40,11 +40,12 @@ clippy-settings .content {
   transform: translateY(-110%);
   border-bottom-left-radius: 3px;
   border-bottom-right-radius: 3px;
-  transition: transform 0.2s ease;
+  transition: transform 0.2s cubic-bezier(0.4, 0, 1, 1);
 }
 
 clippy-settings.shown .content {
   transform: translateY(0);
+  transition: transform 0.2s cubic-bezier(0, 0, 0.2, 1);
 }
 
 clippy-settings .content h2 {
