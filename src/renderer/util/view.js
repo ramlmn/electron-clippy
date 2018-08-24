@@ -3,19 +3,22 @@
  *
  * Usage:
  * ```
- * class App extends HTMLElement {
+ * class Modal extends HTMLElement {
  *   connectedCallback() {
  *     document.addEventListner('keydown', event => {
- *       if (shouldHandle(this.view)) {
+ *       if (shouldHandle(this.viewId)) {
  *         // do something
  *       }
  *     });
  *   }
+ *
  *   show() {
- *     this.view = viewIn();
+ *     // guard for repeated `viewIn()` calls
+ *     this.viewId = viewIn();
  *   }
+ *
  *   hide() {
- *     viewOut(this.view);
+ *     viewOut(this.viewId);
  *   }
  * }
  * ```
@@ -26,18 +29,26 @@ const views = [];
 // For debugging
 window.views = views;
 
-const shouldHandle = view => {
-  return views[views.length - 1] === view;
+const shouldHandle = viewId => {
+  const lastView = views[views.length - 1];
+  if (lastView && lastView.viewId === viewId) {
+    return true;
+  }
+
+  return false;
 };
 
-const viewIn = (view = (Math.random() * 1e16).toString(36)) => {
-  views.push(view);
-  return view;
+const viewIn = (viewId = (Math.random() * 1e16).toString(36), update) => {
+  views.push({viewId, update});
+  return viewId;
 };
 
-const viewOut = view => {
-  if (shouldHandle(view)) {
-    return views.pop();
+const viewOut = viewId => {
+  if (shouldHandle(viewId)) {
+    const lastView = views.pop();
+    if (lastView && lastView.update) {
+      lastView.update();
+    }
   }
 
   return null;
