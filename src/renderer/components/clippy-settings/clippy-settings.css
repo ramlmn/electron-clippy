@@ -20,7 +20,7 @@ clippy-settings .scrim {
   height: 100%;
   background-color: rgba(0, 0, 0, 0.5);
   opacity: 0;
-  transition: opcity 0.2s cubic-bezier(0.4, 0, 1, 1);
+  transition: opacity 0.2s cubic-bezier(0.4, 0, 1, 1);
 }
 
 clippy-settings.shown .scrim {

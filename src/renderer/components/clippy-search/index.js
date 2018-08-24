@@ -12,20 +12,18 @@ class ClippySearch extends ClippyElement {
   }
 
   connectedCallback() {
-    this._autoFocus = this.getAttribute('autofocus') || false;
+    this._autoFocus = this.getAttribute('autofocus');
 
-    if (this._autoFocus) {
-      document.addEventListener('keyup', event => {
-        if (!shouldHandle(this.view)) {
-          return;
-        }
+    document.addEventListener('keyup', event => {
+      if (!shouldHandle(this.view)) {
+        return;
+      }
 
-        const input = this.querySelector('input');
-        if (document.activeElement !== input && !event.defaultPrevented) {
-          input.focus();
-        }
-      });
-    }
+      const input = this.querySelector('input');
+      if (document.activeElement !== input && !event.defaultPrevented) {
+        input.focus();
+      }
+    });
 
     this.render();
   }

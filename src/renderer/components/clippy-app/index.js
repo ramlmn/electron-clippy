@@ -55,7 +55,7 @@ class ClippyApp extends ClippyElement {
     this.html`
       <clippy-settings></clippy-settings>
       <div class="clippy-toolbar">
-        <clippy-search view="${this._view}"></clippy-search>
+        <clippy-search autofocus="true" view="${this._view}"></clippy-search>
         <clippy-button
           icon="settings" label="Show app settings"
           onclick="${() => dispatch(EVENT.SETTINGS_SHOW)}"></clippy-button>

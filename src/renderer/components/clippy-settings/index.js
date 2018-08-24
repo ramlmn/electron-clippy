@@ -16,10 +16,12 @@ class ClippySettings extends ClippyElement {
     subscribe(EVENT.SETTINGS_SHOW, () => this.show());
     subscribe(EVENT.SETTINGS_HIDE, () => this.hide());
 
+    this._visible = false;
+
     if (this.hasAttribute('visible')) {
-      this.hide();
-    } else {
       this.show();
+    } else {
+      this.hide();
     }
 
     document.addEventListener('keydown', event => {
@@ -27,7 +29,7 @@ class ClippySettings extends ClippyElement {
         return;
       }
 
-      if (event.code === 'Escape' && !this._visible) {
+      if (event.code === 'Escape' && this._visible) {
         this.hide();
         event.preventDefault();
       }
@@ -40,32 +42,20 @@ class ClippySettings extends ClippyElement {
     return this._view;
   }
 
-  set view(v) {
-    this._view = v;
+  set view(view) {
+    this._view = view;
     return this._view;
   }
 
-  set visible(value) {
-    if (value === true) {
-      this.hide();
-    } else {
-      this.show();
-    }
-  }
-
-  get visible() {
-    return this._visible;
-  }
-
   show() {
-    if (!this._visible) {
+    if (this._visible) {
       return;
     }
 
     this.view = viewIn();
 
     requestAnimationFrame(() => {
-      this._visible = false;
+      this._visible = true;
       this.classList.add('shown');
       this.removeAttribute('visible');
       this.setAttribute('aria-hidden', false);
@@ -73,14 +63,14 @@ class ClippySettings extends ClippyElement {
   }
 
   hide() {
-    if (this._visible) {
+    if (!this._visible) {
       return;
     }
 
     viewOut(this.view);
 
     requestAnimationFrame(() => {
-      this._visible = true;
+      this._visible = false;
       this.classList.remove('shown');
       this.setAttribute('visible', true);
       this.setAttribute('aria-hidden', true);
@@ -98,9 +88,9 @@ class ClippySettings extends ClippyElement {
 
     if (name === 'visible') {
       if (this.hasAttribute('visible')) {
-        this.hide();
-      } else {
         this.show();
+      } else {
+        this.hide();
       }
     }
   }
