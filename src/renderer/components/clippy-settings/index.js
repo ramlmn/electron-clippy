@@ -1,5 +1,5 @@
 import {subscribe, dispatch} from 'global-dispatcher';
-import {viewIn, viewOut, shouldHandle} from '../../util/view';
+import {viewIn, viewOut, shouldHandle} from '@ramlmn/view';
 import ClippyElement from '../clippy-element';
 import {EVENT} from '../../../constants';
 import '../clippy-switch';
@@ -75,24 +75,6 @@ class ClippySettings extends ClippyElement {
       this.setAttribute('visible', true);
       this.setAttribute('aria-hidden', true);
     });
-  }
-
-  static get observedAttributes() {
-    return ['visible'];
-  }
-
-  attributeChangedCallback(name, oldVal, newVal) {
-    if (oldVal === newVal) {
-      return;
-    }
-
-    if (name === 'visible') {
-      if (this.hasAttribute('visible')) {
-        this.show();
-      } else {
-        this.hide();
-      }
-    }
   }
 
   _onSettingChange(setting, value) {

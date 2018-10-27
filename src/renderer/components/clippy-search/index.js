@@ -1,6 +1,6 @@
 import {dispatch} from 'global-dispatcher';
+import {shouldHandle} from '@ramlmn/view';
 import ClippyElement from '../clippy-element';
-import {shouldHandle} from '../../util/view';
 import {EVENT} from '../../../constants';
 import './clippy-search.css';
 

@@ -1,5 +1,5 @@
+import {shouldHandle} from '@ramlmn/view';
 import ClippyElement from '../clippy-element';
-import {shouldHandle} from '../../util/view';
 import './clippy-switch.css';
 
 class ClippySwitch extends ClippyElement {
