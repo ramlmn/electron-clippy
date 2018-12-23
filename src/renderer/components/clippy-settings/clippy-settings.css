@@ -29,7 +29,8 @@ clippy-settings.shown .scrim {
 }
 
 clippy-settings .content {
-  width: 500px;
+  max-width: 100%;
+  width: 32rem;
   position: absolute;
   top: 0;
   left: 0;
