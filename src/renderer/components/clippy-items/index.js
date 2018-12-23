@@ -117,12 +117,16 @@ class ClippyItems extends ClippyElement {
           return item.type === 'text' && item.data.text.match(re);
         });
 
-        [this._selected] = flattened;
+        this._selected = flattened[0];
 
         return [...flattened];
       } catch (e) {
-        [this._selected] = this._flattened;
+        this._selected = this._flattened[0];
       }
+    }
+
+    if (!this._selected) {
+      this._selected = this._flattened[0];
     }
 
     return [...this._flattened];
@@ -148,7 +152,7 @@ class ClippyItems extends ClippyElement {
           <clippy-item
             data-hash="${item.hash}"
             data-type="${item.type}"
-            class="${(item.hash === this._selected.hash) ? 'selected' : ''}"
+            class="${(this._selected && (item.hash === this._selected.hash)) ? 'selected' : ''}"
           >
             ${item.type === 'image' ? `Image: ${item.width}x${item.height}` : item.data.text.trim().substr(0, 100)}
           </clippy-item>

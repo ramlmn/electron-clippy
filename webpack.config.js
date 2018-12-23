@@ -50,8 +50,7 @@ module.exports = [
             {
               loader: 'css-loader',
               options: {
-                minimize: IS_PROD,
-                sourcemap: !IS_PROD
+                sourceMap: !IS_PROD
               }
             }
           ]

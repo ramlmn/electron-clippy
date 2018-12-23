@@ -1,40 +1,54 @@
-import {app, Menu, BrowserWindow, ipcMain, globalShortcut, Tray} from 'electron';
 import url from 'url';
 import path from 'path';
+import {app, Menu, BrowserWindow, ipcMain, globalShortcut, Tray} from 'electron';
 import AutoLaunch from 'auto-launch';
-import {EVENT} from '../constants';
 import ClipboardWatcher from './clipboard-watcher';
+import {EVENT} from '../constants';
 
+const isProduction = process.env.NODE_ENV === 'production';
 const autoLaunch = new AutoLaunch({name: 'Clippy'});
 
 let mainWindow = null;
 let rendererChannel = null;
 let tray = null;
 let accStat = null;
-let startupStat = null;
 
-const trayTemplate = [
-  {
-    label: 'Clippy'
+const browserWindowOptions = {
+  width: 800,
+  height: 500,
+  show: false,
+  center: true,
+  resizable: false,
+  minimizable: false,
+  maximizable: !isProduction,
+  closable: !isProduction,
+  fullscreenable: false,
+  skipTaskbar: true,
+  movable: false,
+  frame: false,
+  transparent: true,
+  title: 'Clippy',
+  alwaysOnTop: true
+};
+
+const appSettings = {
+  runOnStartup: false
+};
+
+const trayTemplate = [{
+    label: 'Toggle Dev Tools',
+    click: () => rendererChannel && rendererChannel.toggleDevTools()
   }, {
     type: 'separator'
   }, {
-    label: 'Show',
+    label: 'Show Clippy',
     click: () => showWindow()
   }, {
     label: 'Clear',
-    click: () => {
-      if (rendererChannel) {
-        rendererChannel.send(EVENT.ITEM_CLEAR);
-      }
-    }
+    click: () => rendererChannel && rendererChannel.send(EVENT.ITEM_CLEAR)
   }, {
     label: 'Quit',
-    click: () => {
-      if (mainWindow) {
-        mainWindow.close();
-      }
-    }
+    click: () => mainWindow && mainWindow.close()
   }
 ];
 
@@ -64,20 +78,7 @@ function hideWindow(event) {
 }
 
 function createMainWindow() {
-  const win = new BrowserWindow({
-    width: 800,
-    height: 500,
-    show: false,
-    center: true,
-    resizable: false,
-    fullscreenable: false,
-    skipTaskbar: true,
-    movable: false,
-    frame: false,
-    transparent: true,
-    title: 'Clippy',
-    alwaysOnTop: true
-  });
+  const win = new BrowserWindow(browserWindowOptions);
 
   // Basic events for window
   win.on('closed', onWindowClosed);
@@ -112,21 +113,22 @@ watcher.on('item', data => {
 async function onAppInit() {
   watcher.startListening();
 
-  startupStat = await autoLaunch.isEnabled();
+  appSettings.runOnStartup = await autoLaunch.isEnabled();
 
-  rendererChannel.send(EVENT.APP_STATS, {accelerator: accStat, startup: startupStat});
+  rendererChannel.send(EVENT.SETTINGS_UPDATE, appSettings);
 }
 
-async function handleSettings(event, args) {
-  if (args.startup !== startupStat) {
-    if (args.startup === true) {
+async function handleSettingsChange(event, settings) {
+  if (settings.runOnStartup !== appSettings.runOnStartup) {
+    if (settings.runOnStartup === true) {
       autoLaunch.enable();
     } else {
       autoLaunch.disable();
     }
 
-    startupStat = await autoLaunch.isEnabled();
-    rendererChannel.send(EVENT.APP_STATS, {startup: startupStat});
+    appSettings.runOnStartup = await autoLaunch.isEnabled();
+
+    rendererChannel.send(EVENT.SETTINGS_UPDATE, appSettings);
   }
 }
 
@@ -144,12 +146,17 @@ app.on('activate', () => {
 });
 
 app.on('ready', () => {
-  mainWindow = createMainWindow();
-  accStat = registerGlobalShortcut();
-  rendererChannel = mainWindow.webContents;
+  try {
+    mainWindow = createMainWindow();
+    accStat = registerGlobalShortcut();
+    rendererChannel = mainWindow.webContents;
+  } catch (error) {
+    console.error(error);
+    process.exit(1);
+  }
 });
 
 ipcMain.once(EVENT.APP_INIT, onAppInit);
 
 ipcMain.on(EVENT.APP_HIDE, hideWindow);
-ipcMain.on(EVENT.SETTINGS_CHANGE, handleSettings);
+ipcMain.on(EVENT.SETTINGS_CHANGE, handleSettingsChange);

@@ -7,7 +7,7 @@ class ClippySwitch extends ClippyElement {
     this.checked = this.getAttribute('selected');
 
     this.addEventListener('keydown', event => {
-      if (!shouldHandle(this.getAttribute('parentView'))) {
+      if (!shouldHandle(this.view)) {
         return;
       }
 
@@ -19,6 +19,10 @@ class ClippySwitch extends ClippyElement {
     });
 
     this.render();
+  }
+
+  get view() {
+    return this.dataset.view;
   }
 
   render() {
@@ -39,12 +43,12 @@ class ClippySwitch extends ClippyElement {
   }
 
   onchange(event) {
-    event.preventDefault();
-    event.stopPropagation();
+    // event.preventDefault();
+    // event.stopPropagation();
 
-    this.dispatchEvent(new CustomEvent('change', {
-      bubbles: true
-    }));
+    // this.dispatchEvent(new CustomEvent('change', {
+    //   bubbles: false
+    // }));
   }
 }
 

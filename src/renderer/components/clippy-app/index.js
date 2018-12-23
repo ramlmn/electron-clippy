@@ -16,8 +16,6 @@ class ClippyApp extends ClippyElement {
     if (process.platform === 'linux') {
       this.classList.add('is-linux');
     }
-
-    this.render();
   }
 
   set view(v) {
@@ -49,13 +47,15 @@ class ClippyApp extends ClippyElement {
         dispatch(EVENT.APP_HIDE);
       }
     });
+
+    this.render();
   }
 
   render() {
     this.html`
       <clippy-settings></clippy-settings>
       <div class="clippy-toolbar">
-        <clippy-search autofocus="true" view="${this._view}"></clippy-search>
+        <clippy-search autofocus="true" data-view="${this._view}"></clippy-search>
         <clippy-button
           icon="settings" label="Show app settings"
           onclick="${() => dispatch(EVENT.SETTINGS_SHOW)}"></clippy-button>

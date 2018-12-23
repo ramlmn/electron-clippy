@@ -14,7 +14,8 @@ export const EVENT = {
   ITEM_SEARCH: 'item-search',
   ITEM_SELECT: 'item-select',
 
-  SETTINGS_CHANGE: 'settings-change',
+  SETTINGS_UPDATE: 'settings-update', // main -> renderer
+  SETTINGS_CHANGE: 'settings-change', // renderer -> main
   SETTINGS_HIDE: 'settings-hide',
   SETTINGS_SHOW: 'settings-show'
 };

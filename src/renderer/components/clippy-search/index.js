@@ -29,7 +29,7 @@ class ClippySearch extends ClippyElement {
   }
 
   get view() {
-    return this.getAttribute('view');
+    return this.dataset.view;
   }
 
   onChange(event) {
