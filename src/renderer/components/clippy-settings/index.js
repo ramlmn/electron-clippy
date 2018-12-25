@@ -9,7 +9,9 @@ class ClippySettings extends ClippyElement {
   constructor() {
     super();
 
-    this._settings = {};
+    this._settings = {
+      runOnStartup: false
+    };
 
     subscribe(EVENT.SETTINGS_SHOW, () => this.show());
     subscribe(EVENT.SETTINGS_HIDE, () => this.hide());
@@ -79,7 +81,7 @@ class ClippySettings extends ClippyElement {
   }
 
   _onSettingsUpdate(settings) {
-    Object.assign({}, this._settings, settings);
+    this._settings = Object.assign({}, this._settings, settings);
     this.render();
   }
 
@@ -98,7 +100,7 @@ class ClippySettings extends ClippyElement {
         <h2>Settings</h2>
         <clippy-switch
           name="startup" data-view="${this.view}"
-          selected="${Boolean(this._settings.runOnStartup)}"
+          selected="${this._settings.runOnStartup}"
           onchange="${event => this._onSettingChange('runOnStartup', event.target.checked)}"
           label="Start Clippy on system startup"
         ></clippy-switch>

@@ -1,9 +1,11 @@
-import {bind} from 'hyperhtml/esm';
+import {bind, wire} from 'hyperhtml/esm';
 
 class ClippyElement extends HTMLElement {
   constructor(...args) {
     super(...args);
     this.html = bind(this);
+    this.wire = wire(this);
+    this.state = {};
   }
 
   connectedCallback() {
@@ -11,6 +13,21 @@ class ClippyElement extends HTMLElement {
   }
 
   render() {}
+
+  setState(state, render) {
+    const target = this.state;
+    const source = typeof state === 'function' ? state.call(this, target) : state;
+
+    for (const key in source) {
+      target[key] = source[key];
+    }
+
+    if (render !== false) {
+      this.render();
+    }
+
+    return this;
+  }
 }
 
 export default ClippyElement;

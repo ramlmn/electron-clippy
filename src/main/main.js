@@ -110,26 +110,25 @@ watcher.on('item', data => {
   rendererChannel.send(EVENT.ITEM_NEW, data);
 });
 
-async function onAppInit() {
-  watcher.startListening();
+async function handleSettingsChange(event, settings) {
+  if (settings) {
+    if (settings.runOnStartup === true) {
+      autoLaunch.enable();
+    } else {
+      autoLaunch.disable();
+    }
+  }
 
   appSettings.runOnStartup = await autoLaunch.isEnabled();
 
   rendererChannel.send(EVENT.SETTINGS_UPDATE, appSettings);
 }
 
-async function handleSettingsChange(event, settings) {
-  if (settings.runOnStartup !== appSettings.runOnStartup) {
-    if (settings.runOnStartup === true) {
-      autoLaunch.enable();
-    } else {
-      autoLaunch.disable();
-    }
+async function onAppInit() {
+  watcher.startListening();
 
-    appSettings.runOnStartup = await autoLaunch.isEnabled();
-
-    rendererChannel.send(EVENT.SETTINGS_UPDATE, appSettings);
-  }
+  // send settings to renderer at startup
+  await handleSettingsChange();
 }
 
 app.on('window-all-closed', () => {

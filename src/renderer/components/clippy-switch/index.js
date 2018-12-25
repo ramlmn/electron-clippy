@@ -1,36 +1,15 @@
-import {shouldHandle} from '@ramlmn/view';
 import ClippyElement from '../clippy-element';
 import './clippy-switch.css';
 
 class ClippySwitch extends ClippyElement {
-  connectedCallback() {
-    this.checked = this.getAttribute('selected');
-
-    this.addEventListener('keydown', event => {
-      if (!shouldHandle(this.view)) {
-        return;
-      }
-
-      if (event.code === 'Space' || event.code === 'Enter') {
-        this.input.checked = !this.input.checked;
-      }
-
-      this.render();
-    });
-
-    this.render();
-  }
-
   get view() {
     return this.dataset.view;
   }
 
   render() {
     this.html`
-      <label class="switch-container" tabindex="0">
-        <input onchange="${this.onchange}"
-          type="checkbox" tabindex="-1"
-          checked="${this.checked}">
+      <label class="switch-container">
+        <input type="checkbox" checked="${this.selected}">
         <span class="switch">
           <span class="track"></span>
           <span class="handle"></span>
@@ -42,13 +21,22 @@ class ClippySwitch extends ClippyElement {
     this.input = this.querySelector('input');
   }
 
-  onchange(event) {
-    // event.preventDefault();
-    // event.stopPropagation();
+  attributeChangedCallback(attr, previousValue, currentValue) {
+    if (attr === 'selected') {
+      this.render();
+    }
+  }
 
-    // this.dispatchEvent(new CustomEvent('change', {
-    //   bubbles: false
-    // }));
+  static get observedAttributes() {
+    return ['selected'];
+  }
+
+  get selected() {
+    return this.getAttribute('selected') === 'true';
+  }
+
+  set selected(value) {
+    this.setAttribute('selected', value);
   }
 }
 
