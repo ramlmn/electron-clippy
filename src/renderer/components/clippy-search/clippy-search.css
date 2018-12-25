@@ -1,0 +1,28 @@
+clippy-search {
+  display: flex;
+}
+
+clippy-search input[type='search'] {
+  flex: 1;
+  padding: 0.5rem;
+  border: none;
+  border-radius: 3px;
+  color: inherit;
+  font-family: inherit;
+  font-size: 1.25rem;
+  background-color: var(--color-primary-50);
+}
+
+clippy-search input[type='search']:focus,
+clippy-search input[type='search']:hover,
+clippy-search input[type='search']:active {
+  outline: none;
+}
+
+clippy-search input[type='search']::-webkit-search-decoration,
+clippy-search input[type='search']::-webkit-search-cancel-button,
+clippy-search input[type='search']::-webkit-search-results-button,
+clippy-search input[type='search']::-webkit-search-results-decoration {
+  display: none;
+}
+

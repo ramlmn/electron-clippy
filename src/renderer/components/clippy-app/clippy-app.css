@@ -1,0 +1,43 @@
+clippy-app {
+  display: flex;
+  position: relative;
+  flex-direction: column;
+  flex: 1;
+  background: #fff;
+  overflow: hidden;
+  margin: 1rem;
+  border-radius: 0.3em;
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.14),
+    0 4px 18px 0 rgba(0, 0, 0, 0.12),
+    0 3px 5px -2px rgba(0, 0, 0, 0.2);
+}
+
+clippy-app.is-linux {
+  margin: 0;
+  box-shadow: none;
+  border-radius: none;
+}
+
+clippy-app .clippy-toolbar {
+  display: grid;
+  align-items: center;
+  grid-template-columns: 1fr auto;
+  grid-gap: 0.5rem;
+  padding: 0.5rem;
+}
+
+clippy-app .clippy-toolbar clippy-search {
+  flex: 1;
+}
+
+clippy-app .clippy-content {
+  display: grid;
+  grid-template: 1fr / repeat(2, calc(50% - 0.25rem));
+  grid-gap: 0.5rem;
+  flex: 1;
+  padding: 0.5rem;
+}
+
+clippy-app .clippy-content > * {
+  min-height: 0;
+}

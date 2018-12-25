@@ -1,0 +1,38 @@
+clippy-items {
+  overflow-y: auto;
+  padding-right: 0.5rem;
+  position: relative;
+}
+
+clippy-items clippy-item {
+  display: block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 2px;
+  user-select: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+clippy-items clippy-item.selected {
+  background-color: var(--color-item-active-bg, #212121);
+  color: var(--color-item-active-fg, #fff);
+}
+
+clippy-items .not-found {
+  color: var(--color-primary-500, #ccc);
+  user-select: none;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+clippy-items .not-found p {
+  margin: 0.25rem 0;
+}

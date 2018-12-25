@@ -1,0 +1,28 @@
+clippy-button {
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0.125rem;
+  display: grid;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+clippy-button:focus,
+clippy-button:active {
+  outline: none;
+}
+
+clippy-button svg {
+  padding: 0.125rem;
+  height: 100%;
+  fill: var(--color-accented-700, currentColor);
+  opacity: 0.8;
+  transition: opacity 0.2s ease;
+}
+
+clippy-button:hover svg,
+clippy-button:focus svg,
+clippy-button:active svg {
+  opacity: 1;
+}

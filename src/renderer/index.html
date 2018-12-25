@@ -3,31 +3,11 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="author" content="Ram Lmn" />
-
-    <link rel="icon" sizes="any" href="./img/clip-256x256.png">
+    <meta http-equiv="Content-Security-Policy" content="default-src file:; img-src file: data:">
+    <meta name="author" content="ramlmn"/>
 
     <title>Clippy</title>
-    <link href="./stylesheets/fonts.css" rel="stylesheet">
-    <link href="./stylesheets/main.css" rel="stylesheet">
-
-    <link rel="import" href="./components/clippy-app.html">
-    <link rel="import" href="./components/clippy-previewer.html">
-    <link rel="import" href="./components/clippy-items.html">
-    <link rel="import" href="./components/clippy-settings.html">
-    <link rel="import" href="./components/clippy-toolbar.html">
-    <link rel="import" href="./components/material-switch.html">
+    <link rel="icon" sizes="any" href="./img/clippy-32.png">
   </head>
-  <body tabindex="0">
-    <clippy-app>
-      <clippy-toolbar id="toolbar"></clippy-toolbar>
-      <section class="panes-container">
-        <clippy-items id="items"></clippy-items>
-        <clippy-previewer id="previewer"></clippy-previewer>
-      </section>
-      <clippy-settings id="settings" role="dialog" aria-labelledby="title">
-        <material-switch id="startup">Run at startup</material-switch>
-      </clippy-settings>
-    </clippy-app>
-  </body>
+  <body></body>
 </html>

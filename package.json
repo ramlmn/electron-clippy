@@ -1,7 +1,7 @@
 {
-  "name": "clippy",
-  "version": "1.0.0-alpha.4",
-  "description": "A clipboard manager built on electron",
+  "name": "electron-clippy",
+  "version": "0.1.0",
+  "description": "A simple clipboard manager build on Electron",
   "license": "MIT",
   "repository": "ramlmn/electron-clippy",
   "author": {
@@ -9,40 +9,62 @@
     "email": "ramlmn@outlook.com",
     "url": "https://ramlmn.github.io/"
   },
-  "homepage": "https://github.com/ramlmn/electron-clippy",
-  "main": "./src/main/main.js",
+  "homepage": "https://github.com/ramlmn/electron-clippy#readme",
+  "main": "build/main/main.js",
   "scripts": {
-    "lint": "eslint src",
+    "lint": "xo && stylelint src/**/*.css",
+    "lint-fix": "xo --fix; stylelint --fix src/**/*.css",
     "start": "electron .",
-    "build": "build"
+    "watch": "webpack --watch",
+    "dev": "concurrently \"npm run watch\" \"npm run start\"",
+    "build": "cross-env NODE_ENV=production webpack && build"
+  },
+  "dependencies": {
+    "@ramlmn/view": "^1.0.0",
+    "auto-launch": "^5.0.5",
+    "global-dispatcher": "^1.0.0",
+    "hyperhtml": "^2.23.0",
+    "just-debounce-it": "^1.1.0"
   },
   "devDependencies": {
-    "electron": "^1.8.4",
-    "electron-builder": "^20.6.2",
-    "eslint": "^4.19.1",
-    "eslint-config-google": "^0.9.1",
-    "eslint-plugin-html": "^4.0.2"
+    "clean-webpack-plugin": "^1.0.0",
+    "concurrently": "^4.1.0",
+    "copy-webpack-plugin": "^4.6.0",
+    "cross-env": "^5.2.0",
+    "css-loader": "^2.0.2",
+    "cssnano": "^4.1.8",
+    "electron": "^4.0.0",
+    "electron-builder": "^20.38.4",
+    "file-loader": "^3.0.1",
+    "html-webpack-plugin": "^3.2.0",
+    "mini-css-extract-plugin": "^0.5.0",
+    "stylelint": "^9.9.0",
+    "stylelint-config-xo-space": "^0.11.0",
+    "webpack": "^4.28.2",
+    "webpack-cli": "^3.1.2",
+    "xo": "^0.23.0"
   },
   "build": {
+    "appId": "com.ramlmn.electron-clippy",
     "productName": "Clippy",
-    "appId": "com.ramlmn.clippy",
+    "artifactName": "electron-clippy-${version}.${ext}",
     "files": [
-      "src/**/*",
-      "node_modules",
-      "!(*.markdown|*.md|*.txt|.*|LICENSE|README|test)"
+      "build/**/*",
+      "node_modules"
     ],
     "linux": {
       "category": "Productivity",
-      "icon": "src/build-assets/icon/png",
+      "icon": "build/assets/icon/png",
       "target": [
         "AppImage",
         "deb"
       ]
     },
     "win": {
-      "icon": "src/build-assets/icon/win/win.ico",
+      "icon": "build/assets/icon/win/win.ico",
       "target": [
-        "nsis"
+        "nsis",
+        "msi"
       ]
     },
     "nsis": {
@@ -52,7 +74,38 @@
       "deleteAppDataOnUninstall": true
     }
   },
-  "dependencies": {
-    "auto-launch": "^5.0.5"
+  "xo": {
+    "space": true,
+    "rules": {
+      "no-unused-expressions": [
+        2,
+        {
+          "allowTaggedTemplates": true
+        }
+      ],
+      "import/no-unassigned-import": [
+        1,
+        {
+          "allow": [
+            "**/*.css"
+          ]
+        }
+      ]
+    },
+    "env": [
+      "node",
+      "browser"
+    ],
+    "ignore": [
+      "app"
+    ]
+  },
+  "stylelint": {
+    "extends": "stylelint-config-xo-space",
+    "rules": {
+      "declaration-colon-newline-after": null,
+      "selector-list-comma-newline-after": null,
+      "selector-type-no-unknown": null
+    }
   }
 }
