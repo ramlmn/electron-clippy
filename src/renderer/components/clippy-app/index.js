@@ -37,10 +37,13 @@ class ClippyApp extends ClippyElement {
 
       if (event.code === 'ArrowDown') {
         dispatch(EVENT.ITEM_NEXT);
+        event.preventDefault();
       } else if (event.code === 'ArrowUp') {
         dispatch(EVENT.ITEM_PREVIOUS);
+        event.preventDefault();
       } else if (event.code === 'Delete') {
         dispatch(EVENT.ITEM_DELETE);
+        event.preventDefault();
       } else if (event.code === 'Enter') {
         dispatch(EVENT.ITEM_SELECT);
       } else if (event.code === 'Escape') {

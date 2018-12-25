@@ -6,7 +6,6 @@ class ClippySwitch extends ClippyElement {
     this.setAttribute('tabindex', 0);
 
     this.addEventListener('keyup', event => {
-      console.log(event);
       if (event.code === 'Space' || event.code === 'Enter') {
         this.selected = !this.selected;
       }
