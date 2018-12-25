@@ -45,7 +45,7 @@ class ClippyApp extends ClippyElement {
         dispatch(EVENT.ITEM_DELETE);
         event.preventDefault();
       } else if (event.code === 'Enter') {
-        dispatch(EVENT.ITEM_SELECT);
+        dispatch(EVENT.ITEM_COPY);
       } else if (event.code === 'Escape') {
         dispatch(EVENT.APP_HIDE);
       }

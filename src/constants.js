@@ -11,7 +11,7 @@ export const EVENT = {
   ITEM_PREVIOUS: 'item-previous',
   ITEM_RENDER: 'item-render',
   ITEM_SEARCH: 'item-search',
-  ITEM_SELECT: 'item-select',
+  ITEM_COPY: 'item-copy',
 
   ITEMS_SAVE: 'items-save',
   ITEMS_RESTORE: 'items-restore',

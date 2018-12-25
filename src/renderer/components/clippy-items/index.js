@@ -29,7 +29,7 @@ class ClippyItems extends ClippyElement {
     subscribe(EVENT.ITEM_SEARCH, pattern => this.handleSearch(pattern));
 
     subscribe(EVENT.ITEM_NEXT, () => this._selectNext());
-    subscribe(EVENT.ITEM_SELECT, () => this._selectItem());
+    subscribe(EVENT.ITEM_COPY, () => this._copyItem());
     subscribe(EVENT.ITEM_PREVIOUS, () => this._selectPrevious());
 
     subscribe(EVENT.ITEMS_CLEAR, () => this.handleClearItems());
@@ -136,7 +136,7 @@ class ClippyItems extends ClippyElement {
     this._select(1);
   }
 
-  _selectItem() {
+  _copyItem() {
     const selected = this._selectedItem;
 
     if (selected) {
