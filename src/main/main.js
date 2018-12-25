@@ -57,13 +57,17 @@ const trayTemplate = [{
     type: 'separator'
   }, {
     label: 'Show Clippy',
-    click: () => showWindow()
+    click: showWindow
   }, {
     label: 'Clear',
-    click: () => rendererChannel && rendererChannel.send(EVENT.ITEMS_CLEAR)
+    click: () => {
+      rendererChannel.send(EVENT.ITEMS_CLEAR);
+    }
   }, {
     label: 'Quit',
-    click: () => mainWindow && mainWindow.close()
+    click: () => {
+      mainWindow.close();
+    }
   }
 ];
 

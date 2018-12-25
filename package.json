@@ -1,7 +1,7 @@
 {
   "name": "electron-clippy",
   "version": "0.1.0",
-  "description": "A clipboard manager built on electron",
+  "description": "A simple clipboard manager build on Electron",
   "license": "MIT",
   "repository": "ramlmn/electron-clippy",
   "author": {
