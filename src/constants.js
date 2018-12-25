@@ -5,7 +5,6 @@ export const EVENT = {
   APP_SHOW: 'app-show',
   APP_STATS: 'app-stats',
 
-  ITEM_CLEAR: 'item-clear',
   ITEM_DELETE: 'item-delete',
   ITEM_NEW: 'item-new',
   ITEM_NEXT: 'item-next',
@@ -13,6 +12,9 @@ export const EVENT = {
   ITEM_RENDER: 'item-render',
   ITEM_SEARCH: 'item-search',
   ITEM_SELECT: 'item-select',
+
+  ITEMS_SAVE: 'items-save',
+  ITEMS_CLEAR: 'items-clear',
 
   SETTINGS_UPDATE: 'settings-update', // main -> renderer
   SETTINGS_CHANGE: 'settings-change', // renderer -> main

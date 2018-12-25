@@ -23,7 +23,8 @@
     "@ramlmn/view": "^1.0.0",
     "auto-launch": "^5.0.5",
     "global-dispatcher": "^1.0.0",
-    "hyperhtml": "^2.23.0"
+    "hyperhtml": "^2.23.0",
+    "just-debounce-it": "^1.1.0"
   },
   "devDependencies": {
     "clean-webpack-plugin": "^1.0.0",

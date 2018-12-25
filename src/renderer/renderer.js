@@ -7,20 +7,14 @@ import './renderer.css';
 
 bind(document.body)`<clippy-app />`;
 
-// @TODO: relaunch if necessary on reloads
-ipcRenderer.on(EVENT.ITEM_NEW, (event, item) => {
-  dispatch(EVENT.ITEM_NEW, item);
-});
+// some back and forth event handlers
+// between main and render processes
+ipcRenderer.on(EVENT.ITEM_NEW, (event, item) => dispatch(EVENT.ITEM_NEW, item));
 
+subscribe(EVENT.ITEMS_SAVE, data => ipcRenderer.send(EVENT.ITEMS_SAVE, data));
 
-ipcRenderer.on(EVENT.SETTINGS_UPDATE, (event, settings) => {
-  dispatch(EVENT.SETTINGS_UPDATE, settings);
-});
-
-subscribe(EVENT.SETTINGS_CHANGE, settings => {
-  ipcRenderer.send(EVENT.SETTINGS_CHANGE, settings);
-});
-
+ipcRenderer.on(EVENT.SETTINGS_UPDATE, (event, settings) => dispatch(EVENT.SETTINGS_UPDATE, settings));
+subscribe(EVENT.SETTINGS_CHANGE, settings => ipcRenderer.send(EVENT.SETTINGS_CHANGE, settings));
 
 subscribe(EVENT.APP_HIDE, () => ipcRenderer.send(EVENT.APP_HIDE));
 

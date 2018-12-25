@@ -2,8 +2,17 @@ import ClippyElement from '../clippy-element';
 import './clippy-switch.css';
 
 class ClippySwitch extends ClippyElement {
-  get view() {
-    return this.dataset.view;
+  connectedCallback() {
+    this.setAttribute('tabindex', 0);
+
+    this.addEventListener('keyup', event => {
+      console.log(event);
+      if (event.code === 'Space' || event.code === 'Enter') {
+        this.selected = !this.selected;
+      }
+    });
+
+    this.render();
   }
 
   render() {

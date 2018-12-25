@@ -1,12 +1,14 @@
 import {clipboard, nativeImage} from 'electron';
 import {subscribe, dispatch} from 'global-dispatcher';
 import {wire} from 'hyperhtml/esm';
+import debounce from 'just-debounce-it';
 import ClippyElement from '../clippy-element';
 import {clamp} from '../../util';
 import {EVENT} from '../../../constants';
 import '../clippy-item';
 import './clippy-items.css';
 
+// @TODO: refactor whole component
 class ClippyItems extends ClippyElement {
   constructor() {
     super();
@@ -15,6 +17,8 @@ class ClippyItems extends ClippyElement {
     this._flattened = [];
     this._seleted = null;
     this.pattern = null;
+
+    this._saveItemsLazily = debounce(this._saveItems, 200);
   }
 
   connectedCallback() {
@@ -28,6 +32,21 @@ class ClippyItems extends ClippyElement {
     subscribe(EVENT.ITEM_SELECT, () => this._selectItem());
     subscribe(EVENT.ITEM_PREVIOUS, () => this._selectPrevious());
 
+    subscribe(EVENT.ITEMS_CLEAR, () => this.handleClearItems());
+
+    this.render();
+  }
+
+  _saveItems() {
+    dispatch(EVENT.ITEMS_SAVE, this._flattened);
+  }
+
+  handleClearItems() {
+    this._flattened = [];
+    this.items.clear();
+
+    this._saveItems();
+
     this.render();
   }
 
@@ -38,11 +57,13 @@ class ClippyItems extends ClippyElement {
 
     this.items.set(item.hash, item);
     this._flattened.unshift(item);
-    this._preSortItems();
+    this._flattened = this._sortItems(this._flattened);
 
     if (!this.pattern) {
       this._selected = item;
     }
+
+    this._saveItemsLazily();
 
     this.render();
   }
@@ -56,13 +77,15 @@ class ClippyItems extends ClippyElement {
 
     this.items.delete(hash);
     this._flattened = this._flattened.filter(item => item.hash !== hash);
-    this._preSortItems();
+    this._flattened = this._sortItems(this._flattened);
+
+    this._saveItemsLazily();
 
     this.render();
   }
 
-  _preSortItems() {
-    this._flattened = this._flattened.sort((a, b) => {
+  _sortItems(items) {
+    return items.sort((a, b) => {
       return b.timestamp - a.timestamp;
     });
   }

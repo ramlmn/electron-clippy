@@ -12,6 +12,7 @@
   --color-accented-500: #9c27b0;
   --color-accented-300: #ba68c8;
   --color-accented-100: #e1bee7;
+  --color-accented-50: #f3e5f5;
 
   --color-item-active-fg: #fff;
   --color-item-active-bg: var(--color-accented-500);
@@ -69,4 +70,20 @@ h1, h2, h3, h4, h5, h6 {
 
 ::-webkit-scrollbar-corner {
   background: var(--color-scrollbar-corner);
+}
+
+button {
+  color: var(--color-accented-500);
+  background: var(--color-accented-50);
+  border: none;
+  border-radius: 0.25rem;
+  font: inherit;
+  font-weight: 500;
+  padding: 0.25rem 1rem;
+  text-transform: uppercase;
+}
+
+button[disabled] {
+  filter: grayscale();
+  cursor: not-allowed;
 }

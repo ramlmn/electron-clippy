@@ -10,7 +10,8 @@ class ClippySettings extends ClippyElement {
     super();
 
     this._settings = {
-      runOnStartup: false
+      runOnStartup: false,
+      persistentHistory: false
     };
 
     subscribe(EVENT.SETTINGS_SHOW, () => this.show());
@@ -98,12 +99,21 @@ class ClippySettings extends ClippyElement {
       <div class="scrim" onclick="${() => dispatch(EVENT.SETTINGS_HIDE)}"></div>
       <div class="content">
         <h2>Settings</h2>
-        <clippy-switch
-          name="startup" data-view="${this.view}"
-          selected="${this._settings.runOnStartup}"
-          onchange="${event => this._onSettingChange('runOnStartup', event.target.checked)}"
-          label="Start Clippy on system startup"
-        ></clippy-switch>
+        <section>
+          <clippy-switch
+            name="runOnStartup" selected="${this._settings.runOnStartup}"
+            onchange="${event => this._onSettingChange('runOnStartup', event.target.checked)}"
+            label="Start Clippy on system startup"
+            ></clippy-switch>
+          <clippy-switch
+            name="persistentHistory" selected="${this._settings.persistentHistory}"
+            onchange="${event => this._onSettingChange('persistentHistory', event.target.checked)}"
+            label="Persist clipboard history across restarts"
+            ></clippy-switch>
+        </section>
+        <section>
+          <button type="button" onclick="${() => dispatch(EVENT.ITEMS_CLEAR)}">Clear history</button>
+        </section>
       </div>
     `;
   }

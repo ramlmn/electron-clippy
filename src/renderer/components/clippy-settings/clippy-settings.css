@@ -6,6 +6,7 @@ clippy-settings {
   height: 100%;
   z-index: 9999;
   pointer-events: none;
+  user-select: none;
 }
 
 clippy-settings.shown {
@@ -45,6 +46,8 @@ clippy-settings .content {
 }
 
 clippy-settings.shown .content {
+  display: grid;
+  grid-gap: 1rem;
   transform: translateY(0);
   transition: transform 0.2s cubic-bezier(0, 0, 0.2, 1);
 }

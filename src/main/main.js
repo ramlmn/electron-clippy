@@ -1,9 +1,16 @@
+import fs from 'fs';
 import url from 'url';
 import path from 'path';
+import {promisify} from 'util';
 import {app, Menu, BrowserWindow, ipcMain, globalShortcut, Tray} from 'electron';
 import AutoLaunch from 'auto-launch';
 import ClipboardWatcher from './clipboard-watcher';
 import {EVENT} from '../constants';
+
+const stat = promisify(fs.stat);
+const unlink = promisify(fs.unlink);
+const readFile = promisify(fs.readFile);
+const writeFile = promisify(fs.writeFile);
 
 const isProduction = process.env.NODE_ENV === 'production';
 const autoLaunch = new AutoLaunch({name: 'Clippy'});
@@ -12,6 +19,18 @@ let mainWindow = null;
 let rendererChannel = null;
 let tray = null;
 let accStat = null;
+
+const userDataPath = app.getPath('userData');
+const settingsFilePath = path.resolve(userDataPath, 'settings.json');
+const historyFilePath = path.resolve(userDataPath, 'history.json');
+const indexFilePath = path.resolve(__dirname, '../renderer/index.html');
+const trayIconPath = path.resolve(__dirname, '../renderer/img/clippy-32.png');
+
+// default app settings, will be updated later
+const appSettings = {
+  runOnStartup: false,
+  persistentHistory: false
+};
 
 const browserWindowOptions = {
   width: 800,
@@ -31,10 +50,6 @@ const browserWindowOptions = {
   alwaysOnTop: true
 };
 
-const appSettings = {
-  runOnStartup: false
-};
-
 const trayTemplate = [{
     label: 'Toggle Dev Tools',
     click: () => rendererChannel && rendererChannel.toggleDevTools()
@@ -45,7 +60,7 @@ const trayTemplate = [{
     click: () => showWindow()
   }, {
     label: 'Clear',
-    click: () => rendererChannel && rendererChannel.send(EVENT.ITEM_CLEAR)
+    click: () => rendererChannel && rendererChannel.send(EVENT.ITEMS_CLEAR)
   }, {
     label: 'Quit',
     click: () => mainWindow && mainWindow.close()
@@ -86,13 +101,13 @@ function createMainWindow() {
   win.on('blur', hideWindow);
 
   const urlToLoad = url.format({
-    pathname: path.resolve(__dirname, '../renderer/index.html'),
+    pathname: indexFilePath,
     protocol: 'file:',
     slashes: true
   });
   win.loadURL(urlToLoad);
 
-  tray = new Tray(path.resolve(__dirname, '../renderer/img/clippy-32.png'));
+  tray = new Tray(trayIconPath);
 
   const trayContextMenu = Menu.buildFromTemplate(trayTemplate);
   tray.setContextMenu(trayContextMenu);
@@ -102,33 +117,94 @@ function createMainWindow() {
 
   tray.on('double-click', showWindow);
 
+  (async () => {
+    try {
+      // merge default and saved settings
+      const data = await readFile(settingsFilePath, {encoding: 'utf-8'});
+      Object.assign(appSettings, JSON.parse(data));
+    } catch (err) {
+      console.error('[ERR] Error reading settings', settingsFilePath);
+      console.error(err);
+    }
+  })();
+
   return win;
 }
 
-const watcher = new ClipboardWatcher();
-watcher.on('item', data => {
-  rendererChannel.send(EVENT.ITEM_NEW, data);
-});
+async function persistItems(items) {
+  try {
+    await writeFile(historyFilePath, JSON.stringify(items, null, isProduction ? '' : '  '));
+    console.log('[INF] Wrote history to', historyFilePath);
+  } catch (error) {
+    console.error('[ERR] Error while saving history:', historyFilePath);
+    console.error(error);
+  }
+}
 
-async function handleSettingsChange(event, settings) {
+async function persistSettings() {
+  try {
+    await writeFile(settingsFilePath, JSON.stringify(appSettings, null, '  '));
+    console.log('[INF] Wrote settings to', settingsFilePath);
+  } catch (error) {
+    console.error('[ERR] Error while writing settings file:', settingsFilePath);
+    console.error(error);
+  }
+}
+
+async function onSettingsChange(event, settings) {
   if (settings) {
     if (settings.runOnStartup === true) {
       autoLaunch.enable();
     } else {
       autoLaunch.disable();
     }
+
+    if (settings.persistentHistory === true) {
+      // start saving items, flush current to drive
+    } else {
+      // stop saving items, delete everything from drive
+      try {
+        const fileStat = await stat(historyFilePath);
+        if (fileStat.isFile()) {
+          await unlink(historyFilePath);
+        }
+      } catch (error) {}
+
+    }
+
+    appSettings.persistentHistory = settings.persistentHistory;
   }
 
   appSettings.runOnStartup = await autoLaunch.isEnabled();
 
+  persistSettings(); // flush settings immediately
+
   rendererChannel.send(EVENT.SETTINGS_UPDATE, appSettings);
 }
 
+function onNewItem(item) {
+  rendererChannel.send(EVENT.ITEM_NEW, item);
+}
+
 async function onAppInit() {
-  watcher.startListening();
+  const clipboardWatcher = new ClipboardWatcher();
+  clipboardWatcher.on('item', onNewItem);
+  clipboardWatcher.startListening();
+
+  if (appSettings.persistentHistory === true) {
+    try {
+      console.log('[INF] Restoring persistent history');
+      const data = await readFile(historyFilePath, {encoding: 'utf-8'});
+      for (const item of JSON.parse(data)) {
+        onNewItem(item);
+      }
+    } catch (error) {
+      console.error('[ERR] Failed to restore persistent history');
+    }
+  }
 
   // send settings to renderer at startup
-  await handleSettingsChange();
+  await onSettingsChange();
 }
 
 app.on('window-all-closed', () => {
@@ -155,7 +231,13 @@ app.on('ready', () => {
   }
 });
 
-ipcMain.once(EVENT.APP_INIT, onAppInit);
-
+ipcMain.on(EVENT.APP_INIT, onAppInit);
 ipcMain.on(EVENT.APP_HIDE, hideWindow);
-ipcMain.on(EVENT.SETTINGS_CHANGE, handleSettingsChange);
+
+ipcMain.on(EVENT.SETTINGS_CHANGE, onSettingsChange);
+
+ipcMain.on(EVENT.ITEMS_SAVE, (event, items) => {
+  if (appSettings.persistentHistory) {
+    persistItems(items);
+  }
+});
