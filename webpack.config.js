@@ -20,8 +20,7 @@ const commonConfig = {
     filename: '[name].js'
   },
 
-  // This does completely different than what it looks like
-  // 'false' disables mocking node globals
+  // Disable mocking node globals
   node: false,
 
   devtool: IS_PROD ? false : 'source-map',

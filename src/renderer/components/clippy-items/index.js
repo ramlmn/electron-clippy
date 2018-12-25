@@ -43,9 +43,10 @@ class ClippyItems extends ClippyElement {
   }
 
   handleClearItems() {
-    this._selectedItem = null;
-    this._items = [];
     this.items.clear();
+    this._items = [];
+    this._selectedItem = null;
+    this._itemsToRender = [];
 
     this._saveItems();
 
