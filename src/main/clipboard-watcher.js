@@ -134,7 +134,7 @@ class ClipboardWatcher extends EventEmitter {
       newClipItem.length = [...newClipItem.data.text].length;
 
       newClipItem.hash = crypto
-        .createHash('sha256')
+        .createHash('md5')
         .update(newClipItem.data.text)
         .digest('hex');
     } else {
