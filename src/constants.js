@@ -14,6 +14,7 @@ export const EVENT = {
   ITEM_SELECT: 'item-select',
 
   ITEMS_SAVE: 'items-save',
+  ITEMS_RESTORE: 'items-restore',
   ITEMS_CLEAR: 'items-clear',
 
   SETTINGS_UPDATE: 'settings-update', // main -> renderer

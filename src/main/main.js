@@ -182,22 +182,18 @@ async function onSettingsChange(event, settings) {
   rendererChannel.send(EVENT.SETTINGS_UPDATE, appSettings);
 }
 
-function onNewItem(item) {
-  rendererChannel.send(EVENT.ITEM_NEW, item);
-}
-
 async function onAppInit() {
   const clipboardWatcher = new ClipboardWatcher();
-  clipboardWatcher.on('item', onNewItem);
+  clipboardWatcher.on('item', (item) => {
+    rendererChannel.send(EVENT.ITEM_NEW, item);
+  });
   clipboardWatcher.startListening();
 
   if (appSettings.persistentHistory === true) {
     try {
       console.log('[INF] Restoring persistent history');
       const data = await readFile(historyFilePath, {encoding: 'utf-8'});
-      for (const item of JSON.parse(data)) {
-        onNewItem(item);
-      }
+      rendererChannel.send(EVENT.ITEMS_RESTORE, JSON.parse(data));
     } catch (error) {
       console.error('[ERR] Failed to restore persistent history');
     }

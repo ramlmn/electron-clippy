@@ -15,35 +15,47 @@ class ClippyPreviewer extends ClippyElement {
     this.render();
   }
 
-  _getPreview(item) {
-    if (item && item.type === 'image') {
-      return wire()`<img class="preview-image" src="${item.thumb}">`;
+  getPreviewTextOrImage(item) {
+    if (item) {
+      if (item.type === 'image') {
+        return wire()`<img class="preview-image" src="${item.thumb}">`;
+      } else {
+        return wire()`<div class="preview-text">${item.data.text}</div>`;
+      }
     }
 
-    return wire()`<div class="preview-text">${item ? item.data.text : ''}</div>`;
+    return wire()`<div class="preview-text"></div>`;
   }
 
-  _getPreviewMeta(item) {
-    if (!item) {
+  getPreviewMeta(item) {
+    if (item) {
+      let meta;
+
+      if (item.type === 'image') {
+        meta = wire()`<strong>${item.width}</strong> x <strong>${item.height}</strong>`;
+      } else {
+        meta = wire()`<strong>${[...item.data.text].length}</strong> chars`;
+      }
+
+      return wire()`
+        <p>Copied at <strong>${(new Date(item.timestamp)).toLocaleString()}</strong></p>
+        <p>${meta}</p>
+      `;
+    } else {
       return wire()`
         <p></p>
         <p></p>
       `;
     }
-
-    return wire()`
-      <p>Copied at <strong>${(new Date(item.timestamp)).toLocaleString()}</strong></p>
-      <p>${item.type === 'image' ? wire()`<strong>${item.width}</strong> x <strong>${item.height}</strong>` : wire()`<strong>${[...item.data.text].length}</strong> chars`}</p>
-    `;
   }
 
   render(item) {
     this.html`
       <div class="preview">
-        ${this._getPreview(item)}
+        ${this.getPreviewTextOrImage(item)}
       </div>
       <div class="preview-meta">
-        ${this._getPreviewMeta(item)}
+        ${this.getPreviewMeta(item)}
       </div>
     `;
   }

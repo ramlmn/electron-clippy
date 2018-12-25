@@ -12,6 +12,8 @@ bind(document.body)`<clippy-app />`;
 ipcRenderer.on(EVENT.ITEM_NEW, (event, item) => dispatch(EVENT.ITEM_NEW, item));
 
 subscribe(EVENT.ITEMS_SAVE, data => ipcRenderer.send(EVENT.ITEMS_SAVE, data));
+ipcRenderer.on(EVENT.ITEMS_CLEAR, () => dispatch(EVENT.ITEMS_CLEAR));
+ipcRenderer.on(EVENT.ITEMS_RESTORE, (event, items) => dispatch(EVENT.ITEMS_RESTORE, items));
 
 ipcRenderer.on(EVENT.SETTINGS_UPDATE, (event, settings) => dispatch(EVENT.SETTINGS_UPDATE, settings));
 subscribe(EVENT.SETTINGS_CHANGE, settings => ipcRenderer.send(EVENT.SETTINGS_CHANGE, settings));

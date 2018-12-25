@@ -8,14 +8,14 @@ import {EVENT} from '../../../constants';
 import '../clippy-item';
 import './clippy-items.css';
 
-// @TODO: refactor whole component
 class ClippyItems extends ClippyElement {
   constructor() {
     super();
 
     this.items = new Map();
-    this._flattened = [];
-    this._seleted = null;
+    this._items = [];
+    this._selectedItem = null;
+    this._itemsToRender = [];
     this.pattern = null;
 
     this._saveItemsLazily = debounce(this._saveItems, 200);
@@ -33,16 +33,18 @@ class ClippyItems extends ClippyElement {
     subscribe(EVENT.ITEM_PREVIOUS, () => this._selectPrevious());
 
     subscribe(EVENT.ITEMS_CLEAR, () => this.handleClearItems());
+    subscribe(EVENT.ITEMS_RESTORE, (items) => this.handleRestoreItems(items));
 
     this.render();
   }
 
   _saveItems() {
-    dispatch(EVENT.ITEMS_SAVE, this._flattened);
+    dispatch(EVENT.ITEMS_SAVE, this._items);
   }
 
   handleClearItems() {
-    this._flattened = [];
+    this._selectedItem = null;
+    this._items = [];
     this.items.clear();
 
     this._saveItems();
@@ -50,17 +52,34 @@ class ClippyItems extends ClippyElement {
     this.render();
   }
 
+  handleRestoreItems(items) {
+    this.items.clear();
+    this._items = [];
+
+    for (const item of items) {
+      this.items.set(item.hash, item);
+      this._items.push(item);
+      this._items = this._sortItems(this._items);
+    }
+
+    this._itemsToRender = this._items;
+    this._selectedItem = this._items[0];
+
+    this.render();
+  }
+
   handleNewItem(item) {
     if (this.items.has(item.hash)) {
-      this._flattened = this._flattened.filter(i => i.hash !== item.hash);
+      this._items = this._items.filter(i => i.hash !== item.hash);
     }
 
     this.items.set(item.hash, item);
-    this._flattened.unshift(item);
-    this._flattened = this._sortItems(this._flattened);
+    this._items.unshift(item);
+    this._items = this._sortItems(this._items);
 
-    if (!this.pattern) {
-      this._selected = item;
+    if (!this._pattern) {
+      this._selectedItem = item;
+      this._itemsToRender = this._items;
     }
 
     this._saveItemsLazily();
@@ -68,16 +87,19 @@ class ClippyItems extends ClippyElement {
     this.render();
   }
 
-  handleDeleteItem(hash = this._selected.hash) {
-    if (this._flattened.indexOf(this._selected) === this._flattened.length - 1) {
+  handleDeleteItem(hash = this._selectedItem.hash) {
+    const position = this._itemsToRender.indexOf(this._selectedItem);
+    const length = this._itemsToRender.length;
+
+    this.items.delete(hash);
+    this._items = this._items.filter(item => item.hash !== hash);
+    this._itemsToRender = this._itemsToRender.filter(item => item.hash !== hash);
+
+    if (position === length - 1) {
       this._selectPrevious();
     } else {
       this._selectNext();
     }
-
-    this.items.delete(hash);
-    this._flattened = this._flattened.filter(item => item.hash !== hash);
-    this._flattened = this._sortItems(this._flattened);
 
     this._saveItemsLazily();
 
@@ -91,16 +113,16 @@ class ClippyItems extends ClippyElement {
   }
 
   _select(offset) {
-    if (this._selected) {
-      const cur = this._flattened.indexOf(this._selected);
-      const nxt = clamp(cur + offset, 0, this._flattened.length - 1);
-      this._selected = this._flattened[nxt];
+    if (this._selectedItem) {
+      const currentIndex = this._itemsToRender.indexOf(this._selectedItem);
+      const nextIndex = clamp(currentIndex + offset, 0, this._itemsToRender.length - 1);
+      this._selectedItem = this._itemsToRender[nextIndex];
 
-      if (cur === nxt) {
+      if (currentIndex === nextIndex) {
         return;
       }
-    } else if (this._flattened.length > 0) {
-      [this._selected] = this._flattened;
+    } else {
+      this._selectedItem = this._itemsToRender[0];
     }
 
     this.render();
@@ -115,7 +137,7 @@ class ClippyItems extends ClippyElement {
   }
 
   _selectItem() {
-    const selected = this._selected;
+    const selected = this._selectedItem;
 
     if (selected) {
       if (selected.type === 'image') {
@@ -136,48 +158,45 @@ class ClippyItems extends ClippyElement {
       // @TODO: Maybe use a better search algorithm
       try {
         const re = new RegExp(pattern, 'gim');
-        const flattened = this._flattened.filter(item => {
+        const items = this._items.filter(item => {
           return item.type === 'text' && item.data.text.match(re);
         });
 
-        this._selected = flattened[0];
+        this._selectedItem = items[0];
 
-        return [...flattened];
+        return items;
       } catch (e) {
-        this._selected = this._flattened[0];
+        this._selectedItem = this._items[0];
       }
     }
 
-    if (!this._selected) {
-      this._selected = this._flattened[0];
+    if (!this._selectedItem) {
+      this._selectedItem = this._items[0];
     }
 
-    return [...this._flattened];
+    return this._items;
   }
 
   handleSearch(pattern) {
-    if (pattern.length === 0) {
-      this._pattern = null;
-    } else {
-      this._pattern = pattern;
-    }
-
+    this._pattern = pattern;
+    this._itemsToRender = this._filterItems(this._pattern);
     this.render();
   }
 
   render() {
-    const itemsToRender = this._filterItems(this._pattern);
-    dispatch(EVENT.ITEM_RENDER, this._selected);
+    dispatch(EVENT.ITEM_RENDER, this._selectedItem);
 
-    if (itemsToRender.length > 0) {
+    if (this._itemsToRender.length > 0) {
       this.html`
-        ${itemsToRender.map(item => wire(this, `:clippy-item-${item.hash}`)`
+        ${this._itemsToRender.map(item => wire(this, `:clippy-item-${item.hash}`)`
           <clippy-item
             data-hash="${item.hash}"
             data-type="${item.type}"
-            class="${(this._selected && (item.hash === this._selected.hash)) ? 'selected' : ''}"
+            class="${(this._selectedItem && (item.hash === this._selectedItem.hash)) ? 'selected' : ''}"
           >
-            ${item.type === 'image' ? `Image: ${item.width}x${item.height}` : item.data.text.trim().substr(0, 100)}
+            ${item.type === 'image'
+              ? `Image: ${item.width}x${item.height}`
+              : item.data.text.trim().substr(0, 100)}
           </clippy-item>
         `)}
       `;
@@ -185,7 +204,9 @@ class ClippyItems extends ClippyElement {
       requestAnimationFrame(() => {
         const currentItem = this.querySelector('clippy-item.selected');
         if (currentItem) {
-          this.scrollTop = currentItem.offsetTop - this.offsetHeight;
+          currentItem.scrollIntoView({
+            block: 'nearest'
+          });
         }
       });
     } else {
