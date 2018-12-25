@@ -119,7 +119,7 @@ class ClipboardWatcher extends EventEmitter {
     // also cryptographic hash to identify them
     if (newClipItem.type === 'image') {
       newClipItem.hash = crypto
-        .createHash('sha256')
+        .createHash('md5')
         .update(newClipItem.data.image)
         .digest('hex');
 
