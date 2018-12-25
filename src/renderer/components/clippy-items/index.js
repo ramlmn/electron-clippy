@@ -48,6 +48,8 @@ class ClippyItems extends ClippyElement {
     this._selectedItem = null;
     this._itemsToRender = [];
 
+    clipboard.clear();
+
     this._saveItems();
 
     this.render();
