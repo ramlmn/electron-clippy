@@ -197,9 +197,7 @@ class ClippyItems extends ClippyElement {
             data-hash="${item.hash}"
             data-type="${item.type}"
             class="${(this._selectedItem && (item.hash === this._selectedItem.hash)) ? 'selected' : ''}">
-            ${item.type === 'image' ?
-              `Image: ${item.width}x${item.height}` :
-              item.text.trim().substr(0, 100)}
+            ${item.type === 'image' ? `Image: ${item.width}x${item.height}` : item.text.trim().substr(0, 100)}
           </clippy-item>
         `)}
       `;
