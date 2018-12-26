@@ -18,10 +18,10 @@ class ClippyPreviewer extends ClippyElement {
   getPreviewTextOrImage(item) {
     if (item) {
       if (item.type === 'image') {
-        return wire()`<img class="preview-image" src="${item.thumb}">`;
+        return wire()`<img class="preview-image" src="${item.thumbBuffer}">`;
       }
 
-      return wire()`<div class="preview-text">${item.data.text}</div>`;
+      return wire()`<div class="preview-text">${item.text}</div>`;
     }
 
     return wire()`<div class="preview-text"></div>`;
@@ -34,7 +34,7 @@ class ClippyPreviewer extends ClippyElement {
       if (item.type === 'image') {
         meta = wire()`<strong>${item.width}</strong> x <strong>${item.height}</strong>`;
       } else {
-        meta = wire()`<strong>${[...item.data.text].length}</strong> chars`;
+        meta = wire()`<strong>${item.text.length}</strong> bytes`;
       }
 
       return wire()`

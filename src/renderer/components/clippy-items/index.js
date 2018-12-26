@@ -144,13 +144,14 @@ class ClippyItems extends ClippyElement {
 
     if (selected) {
       if (selected.type === 'image') {
-        clipboard.write({
-          image: nativeImage.createFromDataURL(selected.data.image),
-          ...selected.data
-        });
+        const image = nativeImage.createFromDataURL(selected.buffer);
+
+        clipboard.write({image});
       } else {
         clipboard.write({
-          ...selected.data
+          text: selected.text,
+          html: selected.html,
+          rtf: selected.rtf
         });
       }
     }
@@ -162,7 +163,7 @@ class ClippyItems extends ClippyElement {
       try {
         const re = new RegExp(pattern, 'gim');
         const items = this._items.filter(item => {
-          return item.type === 'text' && item.data.text.match(re);
+          return item.type === 'text' && item.text.match(re);
         });
 
         this._selectedItem = items[0];
@@ -196,7 +197,9 @@ class ClippyItems extends ClippyElement {
             data-hash="${item.hash}"
             data-type="${item.type}"
             class="${(this._selectedItem && (item.hash === this._selectedItem.hash)) ? 'selected' : ''}">
-            ${item.type === 'image' ? `Image: ${item.width}x${item.height}` : item.data.text.trim().substr(0, 100)}
+            ${item.type === 'image' ?
+              `Image: ${item.width}x${item.height}` :
+              item.text.trim().substr(0, 100)}
           </clippy-item>
         `)}
       `;
