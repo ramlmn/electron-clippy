@@ -90,8 +90,6 @@ class ClippySettings extends ClippyElement {
     this._settings[setting] = value;
 
     dispatch(EVENT.SETTINGS_CHANGE, this._settings);
-
-    // this.render();
   }
 
   render() {

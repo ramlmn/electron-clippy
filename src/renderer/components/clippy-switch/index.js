@@ -29,7 +29,7 @@ class ClippySwitch extends ClippyElement {
     this.input = this.querySelector('input');
   }
 
-  attributeChangedCallback(attr, previousValue, currentValue) {
+  attributeChangedCallback(attr) {
     if (attr === 'selected') {
       this.render();
     }

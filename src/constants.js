@@ -17,8 +17,8 @@ export const EVENT = {
   ITEMS_RESTORE: 'items-restore',
   ITEMS_CLEAR: 'items-clear',
 
-  SETTINGS_UPDATE: 'settings-update', // main -> renderer
-  SETTINGS_CHANGE: 'settings-change', // renderer -> main
+  SETTINGS_UPDATE: 'settings-update', // From main -> renderer
+  SETTINGS_CHANGE: 'settings-change', // From renderer -> main
   SETTINGS_HIDE: 'settings-hide',
   SETTINGS_SHOW: 'settings-show'
 };

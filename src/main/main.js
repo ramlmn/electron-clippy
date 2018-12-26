@@ -4,8 +4,8 @@ import path from 'path';
 import {promisify} from 'util';
 import {app, Menu, BrowserWindow, ipcMain, globalShortcut, Tray} from 'electron';
 import AutoLaunch from 'auto-launch';
-import ClipboardWatcher from './clipboard-watcher';
 import {EVENT} from '../constants';
+import ClipboardWatcher from './clipboard-watcher';
 
 const stat = promisify(fs.stat);
 const unlink = promisify(fs.unlink);
@@ -18,7 +18,6 @@ const autoLaunch = new AutoLaunch({name: 'Clippy'});
 let mainWindow = null;
 let rendererChannel = null;
 let tray = null;
-let accStat = null;
 
 const userDataPath = app.getPath('userData');
 const settingsFilePath = path.resolve(userDataPath, 'settings.json');
@@ -26,7 +25,7 @@ const historyFilePath = path.resolve(userDataPath, 'history.json');
 const indexFilePath = path.resolve(__dirname, '../renderer/index.html');
 const trayIconPath = path.resolve(__dirname, '../renderer/img/clippy-32.png');
 
-// default app settings, will be updated later
+// Default app settings, will be updated later
 const appSettings = {
   runOnStartup: false,
   persistentHistory: false
@@ -50,7 +49,8 @@ const browserWindowOptions = {
   alwaysOnTop: true
 };
 
-const trayTemplate = [{
+const trayTemplate = [
+  {
     label: 'Toggle Dev Tools',
     click: () => rendererChannel && rendererChannel.toggleDevTools()
   }, {
@@ -123,12 +123,12 @@ function createMainWindow() {
 
   (async () => {
     try {
-      // merge default and saved settings
+      // Merge default and saved settings
       const data = await readFile(settingsFilePath, {encoding: 'utf-8'});
       Object.assign(appSettings, JSON.parse(data));
-    } catch (err) {
+    } catch (error) {
       console.error('[ERR] Error reading settings', settingsFilePath);
-      console.error(err);
+      console.error(error);
     }
   })();
 
@@ -163,17 +163,14 @@ async function onSettingsChange(event, settings) {
       autoLaunch.disable();
     }
 
-    if (settings.persistentHistory === true) {
-      // start saving items, flush current to drive
-    } else {
-      // stop saving items, delete everything from drive
+    if (settings.persistentHistory === false) {
+      // Stop saving items, delete everything from drive
       try {
         const fileStat = await stat(historyFilePath);
         if (fileStat.isFile()) {
           await unlink(historyFilePath);
         }
       } catch (error) {}
-
     }
 
     appSettings.persistentHistory = settings.persistentHistory;
@@ -181,14 +178,14 @@ async function onSettingsChange(event, settings) {
 
   appSettings.runOnStartup = await autoLaunch.isEnabled();
 
-  persistSettings(); // flush settings immediately
+  persistSettings(); // Flush settings immediately
 
   rendererChannel.send(EVENT.SETTINGS_UPDATE, appSettings);
 }
 
 async function onAppInit() {
   const clipboardWatcher = new ClipboardWatcher();
-  clipboardWatcher.on('item', (item) => {
+  clipboardWatcher.on('item', item => {
     rendererChannel.send(EVENT.ITEM_NEW, item);
   });
   clipboardWatcher.startListening();
@@ -203,7 +200,7 @@ async function onAppInit() {
     }
   }
 
-  // send settings to renderer at startup
+  // Send settings to renderer at startup
   await onSettingsChange();
 }
 
@@ -221,14 +218,9 @@ app.on('activate', () => {
 });
 
 app.on('ready', () => {
-  try {
-    mainWindow = createMainWindow();
-    accStat = registerGlobalShortcut();
-    rendererChannel = mainWindow.webContents;
-  } catch (error) {
-    console.error(error);
-    process.exit(1);
-  }
+  registerGlobalShortcut();
+  mainWindow = createMainWindow();
+  rendererChannel = mainWindow.webContents;
 });
 
 ipcMain.on(EVENT.APP_INIT, onAppInit);

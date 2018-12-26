@@ -19,9 +19,9 @@ class ClippyPreviewer extends ClippyElement {
     if (item) {
       if (item.type === 'image') {
         return wire()`<img class="preview-image" src="${item.thumb}">`;
-      } else {
-        return wire()`<div class="preview-text">${item.data.text}</div>`;
       }
+
+      return wire()`<div class="preview-text">${item.data.text}</div>`;
     }
 
     return wire()`<div class="preview-text"></div>`;
@@ -41,12 +41,12 @@ class ClippyPreviewer extends ClippyElement {
         <p>Copied at <strong>${(new Date(item.timestamp)).toLocaleString()}</strong></p>
         <p>${meta}</p>
       `;
-    } else {
-      return wire()`
-        <p></p>
-        <p></p>
-      `;
     }
+
+    return wire()`
+      <p></p>
+      <p></p>
+    `;
   }
 
   render(item) {

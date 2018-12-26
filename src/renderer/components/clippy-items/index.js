@@ -33,7 +33,7 @@ class ClippyItems extends ClippyElement {
     subscribe(EVENT.ITEM_PREVIOUS, () => this._selectPrevious());
 
     subscribe(EVENT.ITEMS_CLEAR, () => this.handleClearItems());
-    subscribe(EVENT.ITEMS_RESTORE, (items) => this.handleRestoreItems(items));
+    subscribe(EVENT.ITEMS_RESTORE, items => this.handleRestoreItems(items));
 
     this.render();
   }
@@ -92,13 +92,13 @@ class ClippyItems extends ClippyElement {
 
   handleDeleteItem(hash = this._selectedItem.hash) {
     const position = this._itemsToRender.indexOf(this._selectedItem);
-    const length = this._itemsToRender.length;
+    const count = this._itemsToRender.length;
 
     this.items.delete(hash);
     this._items = this._items.filter(item => item.hash !== hash);
     this._itemsToRender = this._itemsToRender.filter(item => item.hash !== hash);
 
-    if (position === length - 1) {
+    if (position === count - 1) {
       this._selectPrevious();
     } else {
       this._selectNext();
@@ -168,7 +168,7 @@ class ClippyItems extends ClippyElement {
         this._selectedItem = items[0];
 
         return items;
-      } catch (e) {
+      } catch (error) {
         this._selectedItem = this._items[0];
       }
     }
@@ -195,11 +195,8 @@ class ClippyItems extends ClippyElement {
           <clippy-item
             data-hash="${item.hash}"
             data-type="${item.type}"
-            class="${(this._selectedItem && (item.hash === this._selectedItem.hash)) ? 'selected' : ''}"
-          >
-            ${item.type === 'image'
-              ? `Image: ${item.width}x${item.height}`
-              : item.data.text.trim().substr(0, 100)}
+            class="${(this._selectedItem && (item.hash === this._selectedItem.hash)) ? 'selected' : ''}">
+            ${item.type === 'image' ? `Image: ${item.width}x${item.height}` : item.data.text.trim().substr(0, 100)}
           </clippy-item>
         `)}
       `;

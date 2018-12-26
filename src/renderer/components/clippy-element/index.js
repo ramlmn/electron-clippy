@@ -19,7 +19,9 @@ class ClippyElement extends HTMLElement {
     const source = typeof state === 'function' ? state.call(this, target) : state;
 
     for (const key in source) {
-      target[key] = source[key];
+      if (Object.prototype.hasOwnProperty.call(source, key)) {
+        target[key] = source[key];
+      }
     }
 
     if (render !== false) {

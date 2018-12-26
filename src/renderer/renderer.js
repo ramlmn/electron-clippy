@@ -7,8 +7,8 @@ import './renderer.css';
 
 bind(document.body)`<clippy-app />`;
 
-// some back and forth event handlers
-// between main and render processes
+// Some back and forth event handlers
+// Between main and render processes
 ipcRenderer.on(EVENT.ITEM_NEW, (event, item) => dispatch(EVENT.ITEM_NEW, item));
 
 subscribe(EVENT.ITEMS_SAVE, data => ipcRenderer.send(EVENT.ITEMS_SAVE, data));
