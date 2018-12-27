@@ -1,4 +1,4 @@
-import {clipboard, nativeImage} from 'electron';
+import {clipboard} from 'electron';
 import {subscribe, dispatch} from 'global-dispatcher';
 import {wire} from 'hyperhtml/esm';
 import debounce from 'just-debounce-it';
@@ -144,7 +144,7 @@ class ClippyItems extends ClippyElement {
 
     if (selected) {
       if (selected.type === 'image') {
-        dispatch(EVENT.COPY_TO_CLIPBOARD, selected.buffer)
+        dispatch(EVENT.COPY_TO_CLIPBOARD, selected.buffer);
       } else {
         dispatch(EVENT.COPY_TO_CLIPBOARD, {
           text: selected.text,
