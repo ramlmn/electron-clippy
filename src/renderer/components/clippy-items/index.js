@@ -144,16 +144,16 @@ class ClippyItems extends ClippyElement {
 
     if (selected) {
       if (selected.type === 'image') {
-        const image = nativeImage.createFromDataURL(selected.buffer);
-
-        clipboard.write({image});
+        dispatch(EVENT.COPY_TO_CLIPBOARD, selected.buffer)
       } else {
-        clipboard.write({
+        dispatch(EVENT.COPY_TO_CLIPBOARD, {
           text: selected.text,
           html: selected.html,
           rtf: selected.rtf
         });
       }
+
+      this.handleNewItem(selected);
     }
   }
 

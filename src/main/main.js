@@ -2,7 +2,7 @@ import fs from 'fs';
 import url from 'url';
 import path from 'path';
 import {promisify} from 'util';
-import {app, Menu, BrowserWindow, ipcMain, globalShortcut, Tray} from 'electron';
+import {app, Menu, BrowserWindow, ipcMain, globalShortcut, Tray, clipboard, nativeImage} from 'electron';
 import AutoLaunch from 'auto-launch';
 import {EVENT} from '../constants';
 import ClipboardWatcher from './clipboard-watcher';
@@ -231,5 +231,18 @@ ipcMain.on(EVENT.SETTINGS_CHANGE, onSettingsChange);
 ipcMain.on(EVENT.ITEMS_SAVE, (event, items) => {
   if (appSettings.persistentHistory) {
     persistItems(items);
+  }
+});
+
+// Image data cannot be written from the renderer process on Linux platforms
+// So data is sent here instead to be copied to clipboard
+// Bug: https://github.com/electron/electron/issues/8151
+ipcMain.on(EVENT.COPY_TO_CLIPBOARD, (event, data) => {
+  if (typeof data === 'string') {
+    clipboard.write({
+      image: nativeImage.createFromDataURL(data)
+    });
+  } else {
+    clipboard.write(data);
   }
 });

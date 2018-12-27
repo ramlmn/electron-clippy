@@ -20,5 +20,7 @@ export const EVENT = {
   SETTINGS_UPDATE: 'settings-update', // From main -> renderer
   SETTINGS_CHANGE: 'settings-change', // From renderer -> main
   SETTINGS_HIDE: 'settings-hide',
-  SETTINGS_SHOW: 'settings-show'
+  SETTINGS_SHOW: 'settings-show',
+
+  COPY_TO_CLIPBOARD: 'copy-to-clipboard'
 };

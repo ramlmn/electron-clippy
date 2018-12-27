@@ -19,5 +19,6 @@ ipcRenderer.on(EVENT.SETTINGS_UPDATE, (event, settings) => dispatch(EVENT.SETTIN
 subscribe(EVENT.SETTINGS_CHANGE, settings => ipcRenderer.send(EVENT.SETTINGS_CHANGE, settings));
 
 subscribe(EVENT.APP_HIDE, () => ipcRenderer.send(EVENT.APP_HIDE));
+subscribe(EVENT.COPY_TO_CLIPBOARD, data => ipcRenderer.send(EVENT.COPY_TO_CLIPBOARD, data));
 
 window.addEventListener('load', () => ipcRenderer.send(EVENT.APP_INIT));
